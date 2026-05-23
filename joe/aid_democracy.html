@@ -2274,11 +2274,11 @@ lgl  (3): Time period, Observation value, Base period
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(oecd_agg, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;country_text_id&quot;</span> <span class="ot">=</span> <span class="st">&quot;RECIPIENT&quot;</span>, <span class="st">&quot;year&quot;</span> <span class="ot">=</span> <span class="st">&quot;TIME_PERIOD&quot;</span>))</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>merged_data <span class="ot">=</span> merged_data <span class="sc">%&gt;%</span> </span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(country_text_id, year, total_aid, v2x_libdem)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(country_text_id, year, total_aid, v2x_libdem, v2x_polyarchy)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>model</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">=</span> <span class="fu">glm</span>(total_aid <span class="sc">~</span> v2x_libdem, <span class="at">data =</span> merged_data)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">=</span> <span class="fu">glm</span>(total_aid <span class="sc">~</span> v2x_polyarchy, <span class="at">data =</span> merged_data)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">modelsummary</span>(mod, <span class="at">stars =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
@@ -2522,25 +2522,25 @@ function tinytable_rank_sorter(a, b, aRow, bRow, column, dir, sorterParams) {
 
     <script>
       // Create table-specific functions using external factory
-      const tableFns_6myu28meo7kbbs46ox3d = TinyTable.createTableFunctions("tinytable_6myu28meo7kbbs46ox3d");
+      const tableFns_cyclsgdrqre86dzahu58 = TinyTable.createTableFunctions("tinytable_cyclsgdrqre86dzahu58");
       // tinytable span after
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: '11', j: 2 } ], css_id: 'tinytable_css_tf1ap2e7ba9jelp4cygs',}, 
-          { positions: [ { i: '4', j: 2 } ], css_id: 'tinytable_css_jywolf0r3qwuxmgl4rs7',}, 
-          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '6', j: 2 }, { i: '7', j: 2 }, { i: '8', j: 2 }, { i: '9', j: 2 }, { i: '10', j: 2 } ], css_id: 'tinytable_css_j2go0zi54mb59nayqkt3',}, 
-          { positions: [ { i: '0', j: 2 } ], css_id: 'tinytable_css_bmwhzjoc4w0aeebiuj7e',}, 
-          { positions: [ { i: '11', j: 1 } ], css_id: 'tinytable_css_nqguujemfrsoysuj4y3k',}, 
-          { positions: [ { i: '4', j: 1 } ], css_id: 'tinytable_css_525ixfyrqomhez615o8v',}, 
-          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 }, { i: '6', j: 1 }, { i: '7', j: 1 }, { i: '8', j: 1 }, { i: '9', j: 1 }, { i: '10', j: 1 } ], css_id: 'tinytable_css_iuzxca18ncvxi74op04z',}, 
-          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_84b6rb3xlvjjump60028',}, 
+          { positions: [ { i: '11', j: 2 } ], css_id: 'tinytable_css_sa0h4i8n9ypqd07e7yg6',}, 
+          { positions: [ { i: '4', j: 2 } ], css_id: 'tinytable_css_oikth86osd73tk22mw71',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 }, { i: '5', j: 2 }, { i: '6', j: 2 }, { i: '7', j: 2 }, { i: '8', j: 2 }, { i: '9', j: 2 }, { i: '10', j: 2 } ], css_id: 'tinytable_css_apj80wyfmqbnyr4wuxgt',}, 
+          { positions: [ { i: '0', j: 2 } ], css_id: 'tinytable_css_gy1i1rcj1jg7nekeieib',}, 
+          { positions: [ { i: '11', j: 1 } ], css_id: 'tinytable_css_y7p7je3lu80ttna1vwp9',}, 
+          { positions: [ { i: '4', j: 1 } ], css_id: 'tinytable_css_u2aqosj0pfk2zqfvrfcl',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 }, { i: '5', j: 1 }, { i: '6', j: 1 }, { i: '7', j: 1 }, { i: '8', j: 1 }, { i: '9', j: 1 }, { i: '10', j: 1 } ], css_id: 'tinytable_css_n6cpas96bh7e9l4i79e2',}, 
+          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_c7z8bsnbxknsg3c60l7l',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  tableFns_6myu28meo7kbbs46ox3d.styleCell(cell.i, cell.j, group.css_id);
+                  tableFns_cyclsgdrqre86dzahu58.styleCell(cell.i, cell.j, group.css_id);
               });
           });
       });
@@ -2743,17 +2743,17 @@ line-height: var(--tt-line-height-footnote-tight);
 </style>
     <style>
 
-#tinytable_6myu28meo7kbbs46ox3d td.tinytable_css_tf1ap2e7ba9jelp4cygs, #tinytable_6myu28meo7kbbs46ox3d th.tinytable_css_tf1ap2e7ba9jelp4cygs { position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-#tinytable_6myu28meo7kbbs46ox3d td.tinytable_css_jywolf0r3qwuxmgl4rs7, #tinytable_6myu28meo7kbbs46ox3d th.tinytable_css_jywolf0r3qwuxmgl4rs7 { position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-#tinytable_6myu28meo7kbbs46ox3d td.tinytable_css_j2go0zi54mb59nayqkt3, #tinytable_6myu28meo7kbbs46ox3d th.tinytable_css_j2go0zi54mb59nayqkt3 { text-align: center }
-#tinytable_6myu28meo7kbbs46ox3d td.tinytable_css_bmwhzjoc4w0aeebiuj7e, #tinytable_6myu28meo7kbbs46ox3d th.tinytable_css_bmwhzjoc4w0aeebiuj7e { position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
-#tinytable_6myu28meo7kbbs46ox3d td.tinytable_css_nqguujemfrsoysuj4y3k, #tinytable_6myu28meo7kbbs46ox3d th.tinytable_css_nqguujemfrsoysuj4y3k { position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
-#tinytable_6myu28meo7kbbs46ox3d td.tinytable_css_525ixfyrqomhez615o8v, #tinytable_6myu28meo7kbbs46ox3d th.tinytable_css_525ixfyrqomhez615o8v { position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
-#tinytable_6myu28meo7kbbs46ox3d td.tinytable_css_iuzxca18ncvxi74op04z, #tinytable_6myu28meo7kbbs46ox3d th.tinytable_css_iuzxca18ncvxi74op04z { text-align: left }
-#tinytable_6myu28meo7kbbs46ox3d td.tinytable_css_84b6rb3xlvjjump60028, #tinytable_6myu28meo7kbbs46ox3d th.tinytable_css_84b6rb3xlvjjump60028 { position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+#tinytable_cyclsgdrqre86dzahu58 td.tinytable_css_sa0h4i8n9ypqd07e7yg6, #tinytable_cyclsgdrqre86dzahu58 th.tinytable_css_sa0h4i8n9ypqd07e7yg6 { position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+#tinytable_cyclsgdrqre86dzahu58 td.tinytable_css_oikth86osd73tk22mw71, #tinytable_cyclsgdrqre86dzahu58 th.tinytable_css_oikth86osd73tk22mw71 { position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+#tinytable_cyclsgdrqre86dzahu58 td.tinytable_css_apj80wyfmqbnyr4wuxgt, #tinytable_cyclsgdrqre86dzahu58 th.tinytable_css_apj80wyfmqbnyr4wuxgt { text-align: center }
+#tinytable_cyclsgdrqre86dzahu58 td.tinytable_css_gy1i1rcj1jg7nekeieib, #tinytable_cyclsgdrqre86dzahu58 th.tinytable_css_gy1i1rcj1jg7nekeieib { position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+#tinytable_cyclsgdrqre86dzahu58 td.tinytable_css_y7p7je3lu80ttna1vwp9, #tinytable_cyclsgdrqre86dzahu58 th.tinytable_css_y7p7je3lu80ttna1vwp9 { position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+#tinytable_cyclsgdrqre86dzahu58 td.tinytable_css_u2aqosj0pfk2zqfvrfcl, #tinytable_cyclsgdrqre86dzahu58 th.tinytable_css_u2aqosj0pfk2zqfvrfcl { position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+#tinytable_cyclsgdrqre86dzahu58 td.tinytable_css_n6cpas96bh7e9l4i79e2, #tinytable_cyclsgdrqre86dzahu58 th.tinytable_css_n6cpas96bh7e9l4i79e2 { text-align: left }
+#tinytable_cyclsgdrqre86dzahu58 td.tinytable_css_c7z8bsnbxknsg3c60l7l, #tinytable_cyclsgdrqre86dzahu58 th.tinytable_css_c7z8bsnbxknsg3c60l7l { position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
 </style>
     <div class="container">
-      <table class="tinytable" id="tinytable_6myu28meo7kbbs46ox3d" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="tinytable" id="tinytable_cyclsgdrqre86dzahu58" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         
         <thead>
               <tr>
@@ -2765,19 +2765,19 @@ line-height: var(--tt-line-height-footnote-tight);
         <tbody>
                 <tr>
                   <td data-row="1" data-col="1">(Intercept)</td>
-                  <td data-row="1" data-col="2">6273.627***</td>
+                  <td data-row="1" data-col="2">6943.729***</td>
                 </tr>
                 <tr>
                   <td data-row="2" data-col="1"></td>
-                  <td data-row="2" data-col="2">(298.279)</td>
+                  <td data-row="2" data-col="2">(382.723)</td>
                 </tr>
                 <tr>
-                  <td data-row="3" data-col="1">v2x_libdem</td>
-                  <td data-row="3" data-col="2">-5151.819***</td>
+                  <td data-row="3" data-col="1">v2x_polyarchy</td>
+                  <td data-row="3" data-col="2">-5114.231***</td>
                 </tr>
                 <tr>
                   <td data-row="4" data-col="1"></td>
-                  <td data-row="4" data-col="2">(802.998)</td>
+                  <td data-row="4" data-col="2">(779.406)</td>
                 </tr>
                 <tr>
                   <td data-row="5" data-col="1">Num.Obs.</td>
@@ -2785,27 +2785,27 @@ line-height: var(--tt-line-height-footnote-tight);
                 </tr>
                 <tr>
                   <td data-row="6" data-col="1">R2</td>
-                  <td data-row="6" data-col="2">0.029</td>
+                  <td data-row="6" data-col="2">0.031</td>
                 </tr>
                 <tr>
                   <td data-row="7" data-col="1">AIC</td>
-                  <td data-row="7" data-col="2">27726.4</td>
+                  <td data-row="7" data-col="2">27724.6</td>
                 </tr>
                 <tr>
                   <td data-row="8" data-col="1">BIC</td>
-                  <td data-row="8" data-col="2">27742.1</td>
+                  <td data-row="8" data-col="2">27740.2</td>
                 </tr>
                 <tr>
                   <td data-row="9" data-col="1">Log.Lik.</td>
-                  <td data-row="9" data-col="2">-13860.211</td>
+                  <td data-row="9" data-col="2">-13859.291</td>
                 </tr>
                 <tr>
                   <td data-row="10" data-col="1">F</td>
-                  <td data-row="10" data-col="2">41.162</td>
+                  <td data-row="10" data-col="2">43.056</td>
                 </tr>
                 <tr>
                   <td data-row="11" data-col="1">RMSE</td>
-                  <td data-row="11" data-col="2">6035.38</td>
+                  <td data-row="11" data-col="2">6031.33</td>
                 </tr>
         </tbody>
       </table>

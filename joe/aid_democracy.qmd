@@ -37,13 +37,13 @@ merged_data = vdem_clean %>%
   left_join(oecd_agg, by = c("country_text_id" = "RECIPIENT", "year" = "TIME_PERIOD"))
 
 merged_data = merged_data %>% 
-  select(country_text_id, year, total_aid, v2x_libdem)
+  select(country_text_id, year, total_aid, v2x_libdem, v2x_polyarchy)
 ```
 
 
 model
 ```{r}
-mod = glm(total_aid ~ v2x_libdem, data = merged_data)
+mod = glm(total_aid ~ v2x_polyarchy, data = merged_data)
 
 modelsummary(mod, stars = TRUE)
 ```
