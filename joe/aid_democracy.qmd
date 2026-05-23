@@ -1,11 +1,14 @@
 ---
 title: "foreign_aid_vdem"
-format: html
+format:
+  html:
+    embed-resources: true
 ---
 
 
 ```{r}
 library(modelsummary)
+library(tidyverse)
 ```
 
 
@@ -42,6 +45,6 @@ model
 ```{r}
 mod = glm(total_aid ~ v2x_libdem, data = merged_data)
 
-modelsummary(mod)
+modelsummary(mod, stars = TRUE)
 ```
 
