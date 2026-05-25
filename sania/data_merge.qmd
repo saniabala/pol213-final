@@ -10,23 +10,17 @@ format: html
 Loading required packages. Any missing packages are installed automatically.
 
 ```{r}
-#| include: false
-
-# set working directory to project root so file paths resolve correctly
-knitr::opts_knit$set(root.dir = "..")
-```
-
-```{r}
 #| message: false
 #| warning: false
 
-required_packages <- c("tidyverse", "WDI", "countrycode", "MASS")
+required_packages <- c("tidyverse", "WDI", "countrycode", "MASS", "here")
 missing_packages <- required_packages[!required_packages %in% installed.packages()[, "Package"]]
 if (length(missing_packages) > 0) install.packages(missing_packages, repos = "https://cloud.r-project.org")
 
 library(tidyverse)
 library(WDI)
 library(countrycode)
+library(here)
 # MASS is loaded later, just before the models, to avoid it masking dplyr::select
 ```
 
@@ -42,8 +36,8 @@ We use two datasets:
 ```{r}
 #| message: false
 
-vdem <- read_csv("VDEM.csv")
-oecd_raw <- read_csv("OECD DAC2A.csv")
+vdem <- read_csv(here("VDEM.csv"))
+oecd_raw <- read_csv(here("OECD DAC2A.csv"))
 ```
 
 ### Clean and aggregate OECD data
@@ -71,7 +65,7 @@ oecd <- oecd_clean %>%
   summarise(total_oda_usd_millions = sum(OBS_VALUE, na.rm = TRUE), .groups = "drop") %>%
   rename(country_name = Recipient, year = TIME_PERIOD)
 
-write_csv(oecd, "sania/oecd_clean.csv")
+write_csv(oecd, here("sania/oecd_clean.csv"))
 ```
 
 ### Merge V-Dem and OECD
@@ -146,7 +140,7 @@ analysis <- analysis %>%
   filter(!is.na(oda_count), !is.na(v2x_polyarchy))
 
 
-write_csv(analysis, "sania/analysis_merged.csv")
+write_csv(analysis, here("sania/analysis_merged.csv"))
 ```
 
 ## Models

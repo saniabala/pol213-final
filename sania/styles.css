@@ -1,0 +1,5 @@
+/* Presentation heading sizes — adjust values as needed */
+
+.reveal h1 { font-size: 2.2em !important; }  /* title slide */
+.reveal h2 { font-size: 1.8em !important; }  /* slide headings */
+.reveal h3 { font-size: 1.4em !important; }  /* sub-headings */

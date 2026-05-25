@@ -1,0 +1,216 @@
+---
+title: "Democratic Backsliding and Foreign Aid"
+author: "Joe Hoskisson and Sania Bala"
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    incremental: false
+    toc: false
+    smaller: true
+    css: styles.css
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+
+# load packages and data — runs silently before any slide
+library(tidyverse)
+library(MASS)
+library(knitr)
+library(here)
+
+# load pre-built analysis dataset (produced by data_merge.qmd)
+# here() always resolves to the project root (.Rproj location)
+analysis <- read_csv(here("sania/analysis_merged.csv"))
+
+# re-fit models
+nb_levels <- glm.nb(
+  oda_count ~ v2x_polyarchy + v2x_corr + v2x_rule + v2xcl_rol +
+              log(gdp_per_capita) + offset(log(population)),
+  data = analysis
+)
+
+nb_backsliding <- glm.nb(
+  oda_count ~ delta_polyarchy + v2x_polyarchy + v2x_corr + v2x_rule + v2xcl_rol +
+              log(gdp_per_capita) + offset(log(population)),
+  data = analysis
+)
+```
+
+## Research Question & Motivation
+
+**What are we trying to learn?**
+
+> Does democratic backsliding cause countries to receive less foreign aid?
+
+**Why does it matter?**
+
+- 
+
+---
+
+## Data
+
+**Sources**
+
+| Dataset | What it provides |
+|---|---|
+| V-Dem (Coppedge et al.) | Country-year democracy indices and governance measures |
+| OECD DAC2A | Total ODA disbursements by recipient country and year |
+| World Bank WDI | GDP per capita and population |
+
+**Sample**
+
+- Unit of analysis: **country-year**
+- Period: **2010–2020** (constrained by OECD data availability)
+- Final N: **`r nrow(analysis)` country-years** 
+
+---
+
+## Key Variables
+
+```{r}
+#| label: variable-table
+
+var_table <- tribble(
+  ~Role,          ~Variable,            ~Description,
+  "Outcome",      "oda_count",          "Total ODA received (USD millions, rounded)",
+  "Key predictor","delta_polyarchy",    "Year-over-year change in electoral democracy (V-Dem)",
+  "Control",      "v2x_polyarchy",      "Electoral democracy level (V-Dem)",
+  "Control",      "v2x_corr",           "Political corruption index (V-Dem)",
+  "Control",      "v2x_rule",           "Rule of law index (V-Dem)",
+  "Control",      "v2xcl_rol",          "Civil liberties / equality before the law (V-Dem)",
+  "Control",      "log(gdp_per_capita)","Log GDP per capita, constant 2015 USD (World Bank)",
+  "Offset",       "log(population)",    "Log population — scales outcome by country size"
+)
+
+kable(var_table, align = "lll")
+```
+
+
+---
+
+## Outcome & Model Choice
+
+**What kind of outcome do we have?**
+
+- ODA is a **non-negative count** (USD millions, rounded to nearest integer)
+- Highly right-skewed — a small number of countries receive enormous amounts; most receive relatively little
+- **Overdispersion:** variance far exceeds the mean, which violates the Poisson assumption
+
+**Which model are we fitting?**
+
+- **Negative binomial regression** — extends Poisson by adding a dispersion parameter (θ) that absorbs excess variance
+- Confirmed: Poisson residual deviance = 36,501,834 on 1,211 df; NB residual deviance = 1,425 on 1,211 df
+- `log(population)` entered as an **offset** so coefficients reflect ODA per capita, not raw totals
+
+---
+
+## Preliminary Results: Coefficient Table
+
+
+```{r}
+#| label: coef-table
+
+# extract and format coefficients from both models
+fmt <- function(model) {
+  tidy <- broom::tidy(model)
+  tidy %>%
+    filter(term != "(Intercept)") %>%
+    transmute(
+      Predictor = recode(term,
+        "delta_polyarchy"    = "Backsliding (Δ democracy)",
+        "v2x_polyarchy"      = "Democracy level",
+        "v2x_corr"           = "Corruption",
+        "v2x_rule"           = "Rule of law",
+        "v2xcl_rol"          = "Civil liberties",
+        "log(gdp_per_capita)"= "log(GDP per capita)"
+      ),
+      Estimate  = round(estimate, 3),
+      `Std. Error` = round(std.error, 3),
+      `p-value` = case_when(
+        p.value < .001 ~ "<.001",
+        TRUE           ~ as.character(round(p.value, 3))
+      )
+    )
+}
+
+m1 <- fmt(nb_levels)    %>% rename_with(~ paste0(.x, " (M1)"), -Predictor)
+m2 <- fmt(nb_backsliding) %>% rename_with(~ paste0(.x, " (M2)"), -Predictor)
+
+full_table <- full_join(m1, m2, by = "Predictor")
+
+kable(full_table, align = "lrrrrrr")
+```
+
+---
+
+## Preliminary Results: Predicted Values Plot
+
+```{r}
+#| label: pred-plot
+#| fig-align: center
+#| fig-width: 8
+#| fig-height: 4.5
+
+# build a prediction grid: vary delta_polyarchy, hold everything else at median
+pred_data <- tibble(
+  delta_polyarchy  = seq(min(analysis$delta_polyarchy, na.rm = TRUE),
+                         max(analysis$delta_polyarchy, na.rm = TRUE),
+                         length.out = 100),
+  v2x_polyarchy    = median(analysis$v2x_polyarchy,    na.rm = TRUE),
+  v2x_corr         = median(analysis$v2x_corr,         na.rm = TRUE),
+  v2x_rule         = median(analysis$v2x_rule,         na.rm = TRUE),
+  v2xcl_rol        = median(analysis$v2xcl_rol,        na.rm = TRUE),
+  gdp_per_capita   = median(analysis$gdp_per_capita,   na.rm = TRUE),
+  population       = median(analysis$population,       na.rm = TRUE)
+)
+
+pred_data$predicted_oda <- predict(nb_backsliding, newdata = pred_data, type = "response")
+
+ggplot(pred_data, aes(x = delta_polyarchy, y = predicted_oda)) +
+  geom_line(linewidth = 1.2, color = "maroon") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey30") +
+  annotate("text", x = -0.01, y = max(pred_data$predicted_oda) * 0.95,
+           label = "← Backsliding", hjust = 1, color = "grey30", size = 3.5) +
+  annotate("text", x =  0.01, y = max(pred_data$predicted_oda) * 0.95,
+           label = "Democratization →", hjust = 0, color = "grey30", size = 3.5) +
+  labs(
+    title    = "Predicted ODA by Democratic Change",
+    subtitle = "All other variables held at median",
+    x        = "Δ Electoral Democracy (delta_polyarchy)",
+    y        = "Predicted ODA (USD millions)"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+---
+
+## Interpreting the Results
+
+**Democracy levels (Model 1)**
+
+- More democratic countries receive **significantly less** ODA (est. = −0.991, p < .001)
+- Consistent with need-based allocation — aid goes to less democratic, higher-need countries
+- Rule of law and civil liberties are positively associated with ODA — donors reward governance quality
+
+**Backsliding (Model 2)**
+
+- `delta_polyarchy` is **not significant** (est. = 0.466, p = .537)
+- Direction is correct — backsliding predicts less aid, democratization predicts more
+- But the effect is too small and uncertain to distinguish from zero
+- **Substantive interpretation:** donors respond to *where* a country sits on the democracy scale, not to *how fast* it is moving — suggesting structural inertia in aid allocation
+
+---
+
+## What We're Stuck On & What's Next
+
+**Things we are still working through**
+
+1. 
+
