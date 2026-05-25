@@ -2,5 +2,10 @@
 .Rhistory
 .RData
 .Ruserdata
+.DS_Store
 joe/.DS_Store
 joe/data/
+
+# Quarto rendered outputs
+*.html
+*_files/
