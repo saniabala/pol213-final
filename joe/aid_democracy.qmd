@@ -1,0 +1,50 @@
+---
+title: "foreign_aid_vdem"
+format:
+  html:
+    embed-resources: true
+---
+
+
+```{r}
+library(modelsummary)
+library(tidyverse)
+```
+
+
+Load data
+```{r}
+oecd = read_csv("data/OECD.DCD.FSD,DSD_DAC2@DF_DAC2A,+ALLD+G7+DAC_EC+DACEU+DACEU_EC+AUS+AUT+BEL+CAN+CZE+DNK+EST+FIN+FRA+DEU+GRC+HUN+ISL+IRL+ITA+JPN+KOR+LVA+LTU+LUX+NLD+NZL+NOR+POL+PRT+ROU+SVK+SVN+ESP+SWE+CHE+GBR+USA+AZE+BGR+TWN+HRV+CYP.csv")
+
+oecd_clean = oecd %>% 
+  filter(TIME_PERIOD >= 2010 & TIME_PERIOD <= 2020)
+
+vdem = read_rds("data/V-Dem-CY-FullOthers-v16_rds/V-Dem-CY-Full+Others-v16.rds")
+
+vdem_clean = vdem %>% 
+  filter(year >= 2010 & year <= 2020)
+
+
+oecd_agg <- oecd_clean %>%
+  filter(MEASURE == 206) %>%
+  group_by(RECIPIENT, TIME_PERIOD) %>%
+  summarise(total_aid = sum(OBS_VALUE, na.rm = TRUE), .groups = "drop")
+```
+
+merge data
+```{r}
+merged_data = vdem_clean %>% 
+  left_join(oecd_agg, by = c("country_text_id" = "RECIPIENT", "year" = "TIME_PERIOD"))
+
+merged_data = merged_data %>% 
+  select(country_text_id, year, total_aid, v2x_libdem, v2x_polyarchy)
+```
+
+
+model
+```{r}
+mod = glm(total_aid ~ v2x_polyarchy, data = merged_data)
+
+modelsummary(mod, stars = TRUE)
+```
+
