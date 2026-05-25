@@ -101,6 +101,14 @@ analysis <- analysis %>%
 analysis <- analysis %>%
   filter(!is.na(oda_count), !is.na(v2x_polyarchy))
 
+# --- save analysis-ready merged dataset ---
+
+write_csv(analysis, "sania/analysis_merged.csv")
+
+# --- save cleaned and aggregated OECD dataset ---
+
+write_csv(oecd, "sania/oecd_clean.csv")
+
 # --- Poisson model ---
 # log(population) included as offset so the outcome scales with country size
 
