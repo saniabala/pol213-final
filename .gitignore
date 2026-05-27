@@ -7,5 +7,4 @@ joe/.DS_Store
 joe/data/
 
 # Quarto rendered outputs
-*.html
 *_files/
