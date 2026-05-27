@@ -43,9 +43,9 @@ nb_backsliding <- glm.nb(
 
 **Why does it matter?**
 
-- [point 1]
-- [point 2]
-- [point 3]
+- Democratization. Liberalism view would require certain reforms to get aid.
+- Punishment. Do donors hold governments accountable when they violate democratic norms?
+- Reward. Does more OECD aid go to governments that are becoming more democratic?
 
 ---
 
