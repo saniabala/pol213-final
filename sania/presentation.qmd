@@ -28,13 +28,6 @@ library(here)
 # here() always resolves to the project root (.Rproj location)
 analysis <- read_csv(here("sania/analysis_merged.csv"))
 
-# re-fit models
-nb_levels <- glm.nb(
-  oda_count ~ v2x_polyarchy + v2x_corr + v2x_rule + v2xcl_rol +
-              log(gdp_per_capita) + log(population),
-  data = analysis
-)
-
 nb_backsliding <- glm.nb(
   oda_count ~ delta_polyarchy + v2x_polyarchy + v2x_corr + v2x_rule + v2xcl_rol +
               log(gdp_per_capita) + log(population),
@@ -50,7 +43,9 @@ nb_backsliding <- glm.nb(
 
 **Why does it matter?**
 
-- 
+- [point 1]
+- [point 2]
+- [point 3]
 
 ---
 
@@ -64,10 +59,12 @@ nb_backsliding <- glm.nb(
 | OECD DAC2A | Total ODA disbursements by recipient country and year |
 | World Bank WDI | GDP per capita and population |
 
+*ODA (Official Development Assistance) refers to total aid received by developing countries from donor governments. It includes grants, concessional loans, and technical assistance.*
+
 **Sample**
 
 - Unit of analysis: **country-year**
-- Period: **2010–2020** (constrained by OECD data availability)
+- Period: **2010–2020** 
 - Final N: **`r nrow(analysis)` country-years** 
 
 ---
@@ -107,7 +104,6 @@ kable(var_table, align = "lll")
 
 - **Negative binomial regression** — extends Poisson by adding a dispersion parameter (θ) that absorbs excess variance
 - Confirmed: Poisson residual deviance = 36,501,834 on 1,211 df; NB residual deviance = 1,425 on 1,211 df
-- `log(population)` included as a **control variable** — its coefficient is freely estimated rather than constrained
 
 ---
 
@@ -141,12 +137,7 @@ fmt <- function(model) {
     )
 }
 
-m1 <- fmt(nb_levels)    %>% rename_with(~ paste0(.x, " (M1)"), -Predictor)
-m2 <- fmt(nb_backsliding) %>% rename_with(~ paste0(.x, " (M2)"), -Predictor)
-
-full_table <- full_join(m1, m2, by = "Predictor")
-
-kable(full_table, align = "lrrrrrr")
+kable(fmt(nb_backsliding), align = "lrrr")
 ```
 
 ---
@@ -172,9 +163,16 @@ pred_data <- tibble(
   population       = median(analysis$population,       na.rm = TRUE)
 )
 
-pred_data$predicted_oda <- predict(nb_backsliding, newdata = pred_data, type = "response")
+preds <- predict(nb_backsliding, newdata = pred_data, type = "link", se.fit = TRUE)
+pred_data <- pred_data %>%
+  mutate(
+    predicted_oda = exp(preds$fit),
+    lower         = exp(preds$fit - 1.96 * preds$se.fit),
+    upper         = exp(preds$fit + 1.96 * preds$se.fit)
+  )
 
 ggplot(pred_data, aes(x = delta_polyarchy, y = predicted_oda)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "maroon", alpha = 0.2) +
   geom_line(linewidth = 1.2, color = "maroon") +
   geom_vline(xintercept = 0, linetype = "dashed", color = "grey30") +
   annotate("text", x = -0.01, y = max(pred_data$predicted_oda) * 0.95,
@@ -194,18 +192,10 @@ ggplot(pred_data, aes(x = delta_polyarchy, y = predicted_oda)) +
 
 ## Interpreting the Results
 
-**Democracy levels (Model 1)**
-
-- More democratic countries receive **significantly less** ODA (est. = −0.991, p < .001)
-- Consistent with need-based allocation — aid goes to less democratic, higher-need countries
-- Rule of law and civil liberties are positively associated with ODA — donors reward governance quality
-
-**Backsliding (Model 2)**
-
-- `delta_polyarchy` is **not significant** (est. = 0.466, p = .537)
+- `delta_polyarchy` is **not significant** (est. = 0.299, p = .618)
 - Direction is correct — backsliding predicts less aid, democratization predicts more
 - But the effect is too small and uncertain to distinguish from zero
-- **Substantive interpretation:** donors respond to *where* a country sits on the democracy scale, not to *how fast* it is moving — suggesting structural inertia in aid allocation
+- **Substantive interpretation:** donors respond to *where* a country sits on the democracy scale, not to *how fast* it is moving 
 
 ---
 
@@ -213,5 +203,8 @@ ggplot(pred_data, aes(x = delta_polyarchy, y = predicted_oda)) +
 
 **Things we are still working through**
 
-1. 
+- Should we test **alternative democracy indices** (e.g., liberal, participatory) in the VDEM dataset to assess whether results are sensitive to how democracy is measured?
 
+- Should we **extend the backsliding measure** to capture cumulative democratic decline over a 3–5 year window, rather than year-over-year change, to better reflect how donors perceive and respond to backsliding?
+
+- Should we look at the differences between **commitments** and **disbursement** of aid as democracy ratings change?
