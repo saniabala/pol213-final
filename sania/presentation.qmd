@@ -9,6 +9,7 @@ format:
     toc: false
     smaller: true
     css: styles.css
+    embed-resources: true
 execute:
   echo: false
   warning: false
