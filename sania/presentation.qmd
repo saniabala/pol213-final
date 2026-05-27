@@ -31,13 +31,13 @@ analysis <- read_csv(here("sania/analysis_merged.csv"))
 # re-fit models
 nb_levels <- glm.nb(
   oda_count ~ v2x_polyarchy + v2x_corr + v2x_rule + v2xcl_rol +
-              log(gdp_per_capita) + offset(log(population)),
+              log(gdp_per_capita) + log(population),
   data = analysis
 )
 
 nb_backsliding <- glm.nb(
   oda_count ~ delta_polyarchy + v2x_polyarchy + v2x_corr + v2x_rule + v2xcl_rol +
-              log(gdp_per_capita) + offset(log(population)),
+              log(gdp_per_capita) + log(population),
   data = analysis
 )
 ```
@@ -86,7 +86,7 @@ var_table <- tribble(
   "Control",      "v2x_rule",           "Rule of law index (V-Dem)",
   "Control",      "v2xcl_rol",          "Civil liberties / equality before the law (V-Dem)",
   "Control",      "log(gdp_per_capita)","Log GDP per capita, constant 2015 USD (World Bank)",
-  "Offset",       "log(population)",    "Log population — scales outcome by country size"
+  "Control",      "log(population)",    "Log population (World Bank)"
 )
 
 kable(var_table, align = "lll")
@@ -107,7 +107,7 @@ kable(var_table, align = "lll")
 
 - **Negative binomial regression** — extends Poisson by adding a dispersion parameter (θ) that absorbs excess variance
 - Confirmed: Poisson residual deviance = 36,501,834 on 1,211 df; NB residual deviance = 1,425 on 1,211 df
-- `log(population)` entered as an **offset** so coefficients reflect ODA per capita, not raw totals
+- `log(population)` included as a **control variable** — its coefficient is freely estimated rather than constrained
 
 ---
 
@@ -129,7 +129,8 @@ fmt <- function(model) {
         "v2x_corr"           = "Corruption",
         "v2x_rule"           = "Rule of law",
         "v2xcl_rol"          = "Civil liberties",
-        "log(gdp_per_capita)"= "log(GDP per capita)"
+        "log(gdp_per_capita)"= "log(GDP per capita)",
+        "log(population)"    = "log(Population)"
       ),
       Estimate  = round(estimate, 3),
       `Std. Error` = round(std.error, 3),

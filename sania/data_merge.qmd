@@ -154,7 +154,7 @@ We run two negative binomial models, presented as Model 1 and Model 2:
 
 Keeping both allows us to show that donors respond to where a country sits on the democracy scale, but not necessarily to how fast it is moving. That contrast is itself a substantive finding.
 
-We use negative binomial regression (rather than Poisson) because ODA is heavily overdispersed — its variance far exceeds its mean. Population is included as an offset (`log(population)`) so that the outcome scales with country size.
+We use negative binomial regression (rather than Poisson) because ODA is heavily overdispersed — its variance far exceeds its mean. Population is included as a control (`log(population)`).
 
 ```{r}
 #| message: false
@@ -166,7 +166,7 @@ library(MASS)
 ```{r}
 poisson_model <- glm(
   oda_count ~ v2x_polyarchy + v2x_corr + v2x_rule + v2xcl_rol +
-              log(gdp_per_capita) + offset(log(population)),
+              log(gdp_per_capita) + log(population),
   data   = analysis,
   family = poisson(link = "log")
 )
@@ -181,7 +181,7 @@ The Poisson model shows all coefficients as highly significant (z-values 600–1
 ```{r}
 nb_model <- glm.nb(
   oda_count ~ v2x_polyarchy + v2x_corr + v2x_rule + v2xcl_rol +
-              log(gdp_per_capita) + offset(log(population)),
+              log(gdp_per_capita) + log(population),
   data = analysis
 )
 
@@ -205,7 +205,7 @@ The key predictor is `delta_polyarchy` (year-over-year change in `v2x_polyarchy`
 ```{r}
 nb_backsliding <- glm.nb(
   oda_count ~ delta_polyarchy + v2x_polyarchy + v2x_corr + v2x_rule + v2xcl_rol +
-              log(gdp_per_capita) + offset(log(population)),
+              log(gdp_per_capita) + log(population),
   data = analysis
 )
 
@@ -247,13 +247,13 @@ analysis_robust <- merged %>%
 
 nb_libdem <- glm.nb(
   oda_count ~ delta_libdem + v2x_libdem + v2x_corr + v2x_rule + v2xcl_rol +
-              log(gdp_per_capita) + offset(log(population)),
+              log(gdp_per_capita) + log(population),
   data = analysis_robust
 )
 
 nb_partipdem <- glm.nb(
   oda_count ~ delta_partipdem + v2x_partipdem + v2x_corr + v2x_rule + v2xcl_rol +
-              log(gdp_per_capita) + offset(log(population)),
+              log(gdp_per_capita) + log(population),
   data = analysis_robust
 )
 
