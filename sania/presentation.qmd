@@ -65,7 +65,7 @@ nb_backsliding <- glm.nb(
 **Sample**
 
 - Unit of analysis: **country-year**
-- Period: **2010–2020** 
+- Period: **2010–2020**
 - Final N: **`r nrow(analysis)` country-years** 
 
 ---

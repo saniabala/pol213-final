@@ -31,13 +31,13 @@ library(here)
 We use two datasets:
 
 - **V-Dem** (Varieties of Democracy): country-year measures of democracy, governance, and civil liberties
-- **OECD DAC2A**: bilateral ODA (Official Development Assistance) disbursements by donor and recipient country, 2010–2020
+- **OECD DAC2A**: total ODA (Official Development Assistance) disbursements by recipient country and year, 1960–2024
 
 ```{r}
 #| message: false
 
 vdem <- read_csv(here("VDEM.csv"))
-oecd_raw <- read_csv(here("OECD DAC2A.csv"))
+oecd_raw <- read_csv(here("sania/full_oecd_D.csv"))
 ```
 
 ### Clean and aggregate OECD data
@@ -70,7 +70,7 @@ write_csv(oecd, here("sania/oecd_clean.csv"))
 
 ### Merge V-Dem and OECD
 
-We merge on `country_name` and `year`, keeping all V-Dem observations (left join). We also compute `delta_polyarchy` — the year-over-year change in the electoral democracy index — **before** subsetting to 2010–2020, so that 2010 observations can draw their lag from 2009.
+We merge on `country_name` and `year`, keeping all V-Dem observations (left join). We also compute `delta_polyarchy` — the year-over-year change in the electoral democracy index — **before** subsetting years, so that the first observation in the analysis window can draw its lag from the prior year.
 
 - Negative `delta_polyarchy` = democratic backsliding
 - Positive `delta_polyarchy` = democratization
@@ -84,7 +84,7 @@ merged <- vdem %>%
   ungroup()
 ```
 
-### Subset to analysis variables (2010–2020)
+### Subset to analysis variables (1960–2024)
 
 We keep only the variables needed for analysis and filter to the period covered by the OECD data.
 
@@ -98,7 +98,7 @@ We keep only the variables needed for analysis and filter to the period covered 
 
 ```{r}
 analysis <- merged %>%
-  filter(year >= 2010, year <= 2020) %>%
+  filter(year >= 1960, year <= 2024) %>%
   dplyr::select(
     country_name, year, total_oda_usd_millions,
     v2x_polyarchy, delta_polyarchy,
@@ -117,7 +117,7 @@ GDP per capita and population are not in our V-Dem extract, so we pull them from
 wdi <- WDI(
   indicator = c(gdp_per_capita = "NY.GDP.PCAP.KD",
                 population     = "SP.POP.TOTL"),
-  start = 2010, end = 2020,
+  start = 1960, end = 2024,
   extra = FALSE
 ) %>%
   mutate(country_name = countrycode(iso2c, origin = "iso2c",
@@ -147,58 +147,28 @@ write_csv(analysis, here("sania/analysis_merged.csv"))
 
 ### Model strategy
 
-We run two negative binomial models, presented as Model 1 and Model 2:
-
-- **Model 1** tests whether democracy *levels* predict aid — a baseline consistent with the existing literature
-- **Model 2** adds `delta_polyarchy` to test whether democratic *backsliding* predicts aid — the core hypothesis of this paper
-
-Keeping both allows us to show that donors respond to where a country sits on the democracy scale, but not necessarily to how fast it is moving. That contrast is itself a substantive finding.
-
-We use negative binomial regression (rather than Poisson) because ODA is heavily overdispersed — its variance far exceeds its mean. Population is included as a control (`log(population)`).
+We use negative binomial regression to test whether democratic backsliding predicts foreign aid received. ODA is heavily overdispersed — its variance far exceeds its mean — which rules out Poisson. Population is included as a control (`log(population)`).
 
 ```{r}
 #| message: false
 library(MASS)
 ```
 
-### Poisson model (baseline, rejected due to overdispersion)
+### Overdispersion check
+
+Under Poisson, the variance should equal the mean. If the variance-to-mean ratio is much greater than 1, the data is overdispersed and negative binomial is more appropriate.
 
 ```{r}
-poisson_model <- glm(
-  oda_count ~ v2x_polyarchy + v2x_corr + v2x_rule + v2xcl_rol +
-              log(gdp_per_capita) + log(population),
-  data   = analysis,
-  family = poisson(link = "log")
+tibble(
+  mean     = mean(analysis$oda_count, na.rm = TRUE),
+  variance = var(analysis$oda_count,  na.rm = TRUE),
+  ratio    = var(analysis$oda_count,  na.rm = TRUE) / mean(analysis$oda_count, na.rm = TRUE)
 )
-
-summary(poisson_model)
 ```
 
-The Poisson model shows all coefficients as highly significant (z-values 600–1900), which is a red flag rather than a good sign. The residual deviance (36,501,834 on 1,211 df) far exceeds what Poisson assumes (deviance ≈ df), confirming severe overdispersion. We switch to negative binomial.
+The variance-to-mean ratio is far greater than 1, confirming severe overdispersion. We use negative binomial regression, which adds a dispersion parameter to account for this.
 
-### Model 1: Democracy levels and aid (Negative Binomial)
-
-```{r}
-nb_model <- glm.nb(
-  oda_count ~ v2x_polyarchy + v2x_corr + v2x_rule + v2xcl_rol +
-              log(gdp_per_capita) + log(population),
-  data = analysis
-)
-
-summary(nb_model)
-```
-
-**Results:** n = 1,217 country-years. Theta = 0.917, confirming overdispersion. Residual deviance = 1,425 on 1,211 df — a much better fit. AIC = 26,448.
-
-| Predictor | Estimate | p-value | Interpretation |
-|---|---|---|---|
-| `v2x_polyarchy` | −0.991 | \<.001 | More democratic countries receive less ODA; aid goes to higher-need, less democratic recipients |
-| `v2x_corr` | −0.199 | .518 | Corruption not significant once other governance variables are controlled |
-| `v2x_rule` | 1.410 | \<.001 | Better rule of law associated with more ODA; donors reward governance quality |
-| `v2xcl_rol` | 0.560 | .030 | Stronger civil liberties associated with more ODA |
-| `log(gdp_per_capita)` | −0.322 | \<.001 | Richer countries receive less ODA; consistent with need-based allocation |
-
-### Model 2: Democratic backsliding and aid (Negative Binomial)
+### Backsliding model: Democratic backsliding and aid (Negative Binomial)
 
 The key predictor is `delta_polyarchy` (year-over-year change in `v2x_polyarchy`). We keep `v2x_polyarchy` as a level control so that `delta_polyarchy` captures the effect of change net of overall democratic standing. The expected sign on `delta_polyarchy` is positive — backsliding (negative delta) should predict less ODA.
 
@@ -212,7 +182,7 @@ nb_backsliding <- glm.nb(
 summary(nb_backsliding)
 ```
 
-**Results:** n = 1,216 country-years. AIC = 26,429 (marginally better than Model 1).
+**Results:** *(figures below reflect the 2010–2020 window; re-run to update for the full 1960–2024 series)* n = 1,216 country-years. AIC = 26,429 (marginally better than Model 1).
 
 | Predictor | Estimate | p-value | Interpretation |
 |---|---|---|---|
@@ -240,7 +210,7 @@ analysis_robust <- merged %>%
     delta_partipdem = v2x_partipdem - lag(v2x_partipdem)
   ) %>%
   ungroup() %>%
-  filter(year >= 2010, year <= 2020) %>%
+  filter(year >= 1960, year <= 2024) %>%
   dplyr::select(country_name, year, v2x_libdem, v2x_partipdem,
                 delta_libdem, delta_partipdem) %>%
   left_join(analysis, by = c("country_name", "year"))
@@ -273,7 +243,7 @@ The null result on backsliding is robust across all three conceptualizations of 
 
 ### Check 2: Extended time window
 
-A longer panel would provide more backsliding episodes and more statistical power. However, the OECD DAC2A data in this project only covers 2010–2020. This check should be revisited if the full OECD time series (available from stats.oecd.org back to the 1960s) is downloaded.
+The analysis now uses the full OECD time series (1960–2024), providing a much longer panel with more backsliding episodes and greater statistical power compared to the original 2010–2020 window. Year coverage in practice is limited by the availability of V-Dem scores and World Bank GDP/population data, but the full window is retained and listwise deletion handles missing observations.
 
 ## Potential Improvements
 

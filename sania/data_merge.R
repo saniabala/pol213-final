@@ -1,18 +1,20 @@
 # merge data along country and year
 
-required_packages <- c("tidyverse", "WDI", "countrycode")
+required_packages <- c("tidyverse", "WDI", "countrycode", "here")
 missing_packages <- required_packages[!required_packages %in% installed.packages()[, "Package"]]
 if (length(missing_packages) > 0) install.packages(missing_packages, repos = "https://cloud.r-project.org")
 
 library(tidyverse)
 library(WDI)
 library(countrycode)
+library(here)
+here::i_am("sania/data_merge.R")
 
 # load VDEM data 
-vdem <- read_csv("VDEM.csv")
+vdem <- read_csv(here("VDEM.csv"))
 
-# load OECD DAC2A data
-oecd_raw <- read_csv("OECD DAC2A.csv")
+# load full OECD DAC2A data (1960-2024, all official donors aggregated)
+oecd_raw <- read_csv(here("sania/full_oecd_D.csv"))
 
 # standardize OECD country names to match VDEM
 oecd_clean <- oecd_raw %>%
@@ -54,10 +56,10 @@ merged <- merged %>%
   mutate(delta_polyarchy = v2x_polyarchy - lag(v2x_polyarchy)) %>%
   ungroup()
 
-# --- subset to analysis variables and 2010-2020 ---
+# --- subset to analysis variables (full OECD window: 1960-2024) ---
 
 analysis <- merged %>%
-  filter(year >= 2010, year <= 2020) %>%
+  filter(year >= 1960, year <= 2024) %>%
   select(
     country_name,
     year,
@@ -71,12 +73,12 @@ analysis <- merged %>%
     v2xcl_rol         # civil liberties / equality before the law
   )
 
-# --- pull GDP per capita and population from World Bank (2010-2020) ---
+# --- pull GDP per capita and population from World Bank (1960-2024) ---
 
 wdi_raw <- WDI(
   indicator = c(gdp_per_capita = "NY.GDP.PCAP.KD",
                 population     = "SP.POP.TOTL"),
-  start = 2010, end = 2020,
+  start = 1960, end = 2024,
   extra = FALSE
 )
 
@@ -103,11 +105,11 @@ analysis <- analysis %>%
 
 # --- save analysis-ready merged dataset ---
 
-write_csv(analysis, "sania/analysis_merged.csv")
+write_csv(analysis, here("sania/analysis_merged.csv"))
 
 # --- save cleaned and aggregated OECD dataset ---
 
-write_csv(oecd, "sania/oecd_clean.csv")
+write_csv(oecd, here("sania/oecd_clean.csv"))
 
 # --- Poisson model ---
 # log(population) included as offset so the outcome scales with country size
@@ -247,7 +249,7 @@ analysis_robust <- merged %>%
     delta_partipdem = v2x_partipdem - lag(v2x_partipdem)
   ) %>%
   ungroup() %>%
-  filter(year >= 2010, year <= 2020) %>%
+  filter(year >= 1960, year <= 2024) %>%
   dplyr::select(country_name, year, v2x_libdem, v2x_partipdem,
                 delta_libdem, delta_partipdem) %>%
   left_join(analysis, by = c("country_name", "year"))
@@ -295,12 +297,11 @@ summary(nb_partipdem)
 # country sits on the democracy scale, not to how fast it is moving.
 
 # --- Robustness check 2: Extended time window ---
-# Why: a longer panel would provide more backsliding episodes and more statistical
-# power to detect a donor response. However, the OECD DAC2A data in this project
-# only covers 2010-2020, making it impossible to extend the window further back
-# without obtaining additional OECD data. This check should be revisited if the
-# full OECD time series (available from stats.oecd.org going back to the 1960s)
-# is downloaded and added to the project.
+# The analysis now uses the full OECD time series (full_oecd_D.csv, 1960-2024),
+# providing a much longer panel than the original 2010-2020 window. This gives
+# more backsliding episodes and greater statistical power. WDI data was also
+# expanded to cover the same range. Listwise deletion handles early years with
+# sparse GDP/population coverage.
 #
 #
 # =============================================================================
