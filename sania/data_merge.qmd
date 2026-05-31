@@ -30,8 +30,8 @@ library(here)
 
 We use two datasets:
 
-- **V-Dem** (Varieties of Democracy): country-year measures of democracy, governance, and civil liberties
-- **OECD DAC2A**: total ODA (Official Development Assistance) disbursements by recipient country and year, 1960–2024
+-   **V-Dem** (Varieties of Democracy): country-year measures of democracy, governance, and civil liberties
+-   **OECD DAC2A**: total ODA (Official Development Assistance) disbursements by recipient country and year, 1960--2024
 
 ```{r}
 #| message: false
@@ -70,10 +70,10 @@ write_csv(oecd, here("sania/oecd_clean.csv"))
 
 ### Merge V-Dem and OECD
 
-We merge on `country_name` and `year`, keeping all V-Dem observations (left join). We also compute `delta_polyarchy` — the year-over-year change in the electoral democracy index — **before** subsetting years, so that the first observation in the analysis window can draw its lag from the prior year.
+We merge on `country_name` and `year`, keeping all V-Dem observations (left join). We also compute `delta_polyarchy` --- the year-over-year change in the electoral democracy index --- **before** subsetting years, so that the first observation in the analysis window can draw its lag from the prior year.
 
-- Negative `delta_polyarchy` = democratic backsliding
-- Positive `delta_polyarchy` = democratization
+-   Negative `delta_polyarchy` = democratic backsliding
+-   Positive `delta_polyarchy` = democratization
 
 ```{r}
 merged <- vdem %>%
@@ -84,17 +84,17 @@ merged <- vdem %>%
   ungroup()
 ```
 
-### Subset to analysis variables (1960–2024)
+### Subset to analysis variables (1960--2024)
 
 We keep only the variables needed for analysis and filter to the period covered by the OECD data.
 
-| Variable | Description |
-|---|---|
-| `v2x_polyarchy` | Electoral democracy level (control) |
+| Variable          | Description                                        |
+|-------------------|----------------------------------------------------|
+| `v2x_polyarchy`   | Electoral democracy level (control)                |
 | `delta_polyarchy` | Year-over-year change in democracy (key predictor) |
-| `v2x_corr` | Political corruption index |
-| `v2x_rule` | Rule of law index |
-| `v2xcl_rol` | Civil liberties / equality before the law |
+| `v2x_corr`        | Political corruption index                         |
+| `v2x_rule`        | Rule of law index                                  |
+| `v2xcl_rol`       | Civil liberties / equality before the law          |
 
 ```{r}
 analysis <- merged %>%
@@ -147,7 +147,7 @@ write_csv(analysis, here("sania/analysis_merged.csv"))
 
 ### Model strategy
 
-We use negative binomial regression to test whether democratic backsliding predicts foreign aid received. ODA is heavily overdispersed — its variance far exceeds its mean — which rules out Poisson. Population is included as a control (`log(population)`).
+We use negative binomial regression to test whether democratic backsliding predicts foreign aid received. ODA is heavily overdispersed --- its variance far exceeds its mean --- which rules out Poisson. Population is included as a control (`log(population)`).
 
 ```{r}
 #| message: false
@@ -170,7 +170,7 @@ The variance-to-mean ratio is far greater than 1, confirming severe overdispersi
 
 ### Backsliding model: Democratic backsliding and aid (Negative Binomial)
 
-The key predictor is `delta_polyarchy` (year-over-year change in `v2x_polyarchy`). We keep `v2x_polyarchy` as a level control so that `delta_polyarchy` captures the effect of change net of overall democratic standing. The expected sign on `delta_polyarchy` is positive — backsliding (negative delta) should predict less ODA.
+The key predictor is `delta_polyarchy` (year-over-year change in `v2x_polyarchy`). We keep `v2x_polyarchy` as a level control so that `delta_polyarchy` captures the effect of change net of overall democratic standing. The expected sign on `delta_polyarchy` is positive --- backsliding (negative delta) should predict less ODA.
 
 ```{r}
 nb_backsliding <- glm.nb(
@@ -182,15 +182,19 @@ nb_backsliding <- glm.nb(
 summary(nb_backsliding)
 ```
 
-**Results:** *(figures below reflect the 2010–2020 window; re-run to update for the full 1960–2024 series)* n = 1,216 country-years. AIC = 26,429 (marginally better than Model 1).
+**Results:** n = 6,466 country-years (1,084 dropped due to missingness). Theta = 0.992, confirming overdispersion. Residual deviance = 7,525 on 6,458 df. AIC = 91,429.
 
-| Predictor | Estimate | p-value | Interpretation |
-|---|---|---|---|
-| `delta_polyarchy` | 0.466 | .537 | **Not significant.** Direction is correct but effect is indistinguishable from zero |
-| `v2x_polyarchy` | −1.001 | \<.001 | Democracy level remains strongly significant |
-| All controls | — | — | Consistent with Model 1 |
+| Predictor             | Estimate | p-value | Interpretation                                                                                                                                    |
+|------------------|------------------|------------------|------------------|
+| `delta_polyarchy`     | −0.310   | .264    | **Not significant.** Direction reversed from prior specification --- backsliding weakly associated with less aid, but indistinguishable from zero |
+| `v2x_polyarchy`       | −0.435   | \<.001  | More democratic countries receive less ODA; consistent with need-based allocation                                                                 |
+| `v2x_corr`            | 1.142    | \<.001  | Higher corruption associated with more ODA                                                                                                        |
+| `v2x_rule`            | 1.616    | \<.001  | Better rule of law associated with more ODA                                                                                                       |
+| `v2xcl_rol`           | 0.382    | \<.001  | Stronger civil liberties associated with more ODA                                                                                                 |
+| `log(gdp_per_capita)` | −0.245   | \<.001  | Richer countries receive less ODA                                                                                                                 |
+| `log(population)`     | 0.545    | \<.001  | Larger countries receive more ODA                                                                                                                 |
 
-**Interpretation:** The backsliding hypothesis is not supported in this specification. Aid allocations respond to a country's overall democratic standing, but not to year-to-year democratic change. This likely reflects donor inertia — aid budgets are planned in advance and respond slowly to political shifts. Adding fixed effects or a longer lag structure (2–3 years) may surface a delayed donor response.
+**Interpretation:** The backsliding hypothesis is not supported in this specification. Aid allocations respond to a country's overall democratic standing, but not to year-to-year democratic change. Notably, with the extended time series the direction of `delta_polyarchy` flips --- backsliding is now weakly associated with *less* aid (negative coefficient), which is the expected direction, but the effect remains statistically indistinguishable from zero. This likely reflects donor inertia --- aid budgets are planned in advance and respond slowly to political shifts.
 
 ## Robustness Checks
 
@@ -198,8 +202,8 @@ summary(nb_backsliding)
 
 `v2x_polyarchy` measures electoral democracy specifically. If the null result is real, it should hold across different conceptualizations of democracy. We test two alternatives:
 
-- `v2x_libdem` — liberal democracy (adds judicial constraints and civil liberties)
-- `v2x_partipdem` — participatory democracy (emphasizes civil society and direct participation)
+-   `v2x_libdem` --- liberal democracy (adds judicial constraints and civil liberties)
+-   `v2x_partipdem` --- participatory democracy (emphasizes civil society and direct participation)
 
 ```{r}
 analysis_robust <- merged %>%
@@ -233,22 +237,143 @@ summary(nb_partipdem)
 
 **Results:** The null result holds across both alternatives.
 
-| Model | Delta estimate | p-value |
-|---|---|---|
-| Electoral democracy (`delta_polyarchy`) | 0.466 | .537 |
-| Liberal democracy (`delta_libdem`) | 0.185 | .840 |
-| Participatory democracy (`delta_partipdem`) | 1.326 | .266 |
+| Model                                       | Delta estimate | p-value |
+|---------------------------------------------|----------------|---------|
+| Electoral democracy (`delta_polyarchy`)     | 0.466          | .537    |
+| Liberal democracy (`delta_libdem`)          | 0.185          | .840    |
+| Participatory democracy (`delta_partipdem`) | 1.326          | .266    |
 
-The null result on backsliding is robust across all three conceptualizations of democracy. This consistently points to donor inertia — aid allocations respond to where a country sits on the democracy scale, not to how fast it is moving.
+The null result on backsliding is robust across all three conceptualizations of democracy. This consistently points to donor inertia --- aid allocations respond to where a country sits on the democracy scale, not to how fast it is moving.
 
 ### Check 2: Extended time window
 
-The analysis now uses the full OECD time series (1960–2024), providing a much longer panel with more backsliding episodes and greater statistical power compared to the original 2010–2020 window. Year coverage in practice is limited by the availability of V-Dem scores and World Bank GDP/population data, but the full window is retained and listwise deletion handles missing observations.
+The analysis now uses the full OECD time series (1960--2024), providing a much longer panel with more backsliding episodes and greater statistical power compared to the original 2010--2020 window. Year coverage in practice is limited by the availability of V-Dem scores and World Bank GDP/population data, but the full window is retained and listwise deletion handles missing observations.
 
-## Potential Improvements
+## Replication: Commitment Data
 
-1. **Lag the predictors** — currently democracy scores and ODA are measured in the same year, raising reverse causality concerns. Lagging `v2x_polyarchy` and all controls by one year (t-1) would make the causal direction cleaner.
+ODA commitments capture when donors pledge aid, while disbursements capture when it is actually transferred. Commitments may respond more quickly to political changes since they are forward-looking decisions, whereas disbursements reflect prior commitments and are stickier. We replicate the main analysis using OECD DAC3A commitment data (1966--2024) to test whether the null result on backsliding holds.
 
-2. **Country + year fixed effects** — country fixed effects absorb all time-invariant country characteristics (colonial history, geographic proximity to donors). Year fixed effects absorb global shocks. Can be implemented with the `fixest` package.
+### Load and clean commitment data
 
-3. **Check for zero inflation** — if many country-years have zero ODA, a zero-inflated negative binomial (ZINB) may fit better. Check with `table(analysis$oda_count == 0)`.
+```{r}
+oecd_commit_raw <- read_csv(here("sania/oecd_commitments.csv"))
+
+oecd_commit <- oecd_commit_raw %>%
+  mutate(Recipient = recode(Recipient,
+    "Myanmar"                                           = "Burma/Myanmar",
+    "Cabo Verde"                                        = "Cape Verde",
+    "China (People's Republic of)"                      = "China",
+    "Côte d'Ivoire"                                     = "Ivory Coast",
+    "Lao People's Democratic Republic"                  = "Laos",
+    "Democratic People's Republic of Korea"             = "North Korea",
+    "Palestinian Authority or West Bank and Gaza Strip" = "Palestine/West Bank",
+    "Congo"                                             = "Republic of the Congo",
+    "Syrian Arab Republic"                              = "Syria",
+    "Gambia"                                            = "The Gambia",
+    "Viet Nam"                                          = "Vietnam"
+  )) %>%
+  group_by(Recipient, TIME_PERIOD) %>%
+  summarise(total_oda_commit_usd_millions = sum(OBS_VALUE, na.rm = TRUE), .groups = "drop") %>%
+  rename(country_name = Recipient, year = TIME_PERIOD)
+```
+
+### Merge with V-Dem and World Bank data
+
+```{r}
+analysis_commit <- vdem %>%
+  left_join(oecd_commit, by = c("country_name", "year")) %>%
+  arrange(country_name, year) %>%
+  group_by(country_name) %>%
+  mutate(delta_polyarchy = v2x_polyarchy - lag(v2x_polyarchy)) %>%
+  ungroup() %>%
+  filter(year >= 1966, year <= 2024) %>%
+  dplyr::select(
+    country_name, year, total_oda_commit_usd_millions,
+    v2x_polyarchy, delta_polyarchy,
+    v2x_corr, v2x_rule, v2xcl_rol
+  ) %>%
+  left_join(wdi, by = c("country_name", "year")) %>%
+  mutate(oda_commit_count = pmax(0, round(total_oda_commit_usd_millions))) %>%
+  dplyr::select(-total_oda_commit_usd_millions) %>%
+  filter(!is.na(oda_commit_count), !is.na(v2x_polyarchy))
+
+write_csv(analysis_commit, here("sania/analysis_commitments.csv"))
+```
+
+### Overdispersion check
+
+```{r}
+tibble(
+  mean     = mean(analysis_commit$oda_commit_count, na.rm = TRUE),
+  variance = var(analysis_commit$oda_commit_count,  na.rm = TRUE),
+  ratio    = var(analysis_commit$oda_commit_count,  na.rm = TRUE) / mean(analysis_commit$oda_commit_count, na.rm = TRUE)
+)
+```
+
+### Backsliding model: Commitments (Negative Binomial)
+
+```{r}
+nb_commit <- glm.nb(
+  oda_commit_count ~ delta_polyarchy + v2x_polyarchy + v2x_corr + v2x_rule + v2xcl_rol +
+                     log(gdp_per_capita) + log(population),
+  data = analysis_commit
+)
+
+summary(nb_commit)
+```
+
+**Results:** n = 6,039 country-years (868 dropped due to missingness). Theta = 1.174. Residual deviance = 6,852 on 6,031 df. AIC = 87,640.
+
+| Predictor             | Estimate | p-value | Interpretation                                                                                              |
+|------------------|------------------|------------------|------------------|
+| `delta_polyarchy`     | −0.285   | .276    | **Not significant.** Backsliding weakly associated with less committed aid, but indistinguishable from zero |
+| `v2x_polyarchy`       | −0.260   | .007    | More democratic countries receive fewer aid commitments                                                     |
+| `v2x_corr`            | 1.260    | \<.001  | Higher corruption associated with more commitments                                                          |
+| `v2x_rule`            | 1.623    | \<.001  | Better rule of law associated with more commitments                                                         |
+| `v2xcl_rol`           | 0.622    | \<.001  | Stronger civil liberties associated with more commitments                                                   |
+| `log(gdp_per_capita)` | −0.267   | \<.001  | Richer countries receive fewer commitments                                                                  |
+| `log(population)`     | 0.560    | \<.001  | Larger countries receive more commitments                                                                   |
+
+**Interpretation:** The null result on backsliding holds using commitment data (est. = −0.285, p = .276). The pattern across controls is nearly identical to the disbursement model, suggesting the finding is not an artifact of the outcome measure. Donors do not appear to respond to year-to-year democratic change whether measured through pledged or transferred aid.
+
+### Robustness: Alternative democracy measures (Commitments)
+
+```{r}
+analysis_commit_robust <- merged %>%
+  arrange(country_name, year) %>%
+  group_by(country_name) %>%
+  mutate(
+    delta_libdem    = v2x_libdem - lag(v2x_libdem),
+    delta_partipdem = v2x_partipdem - lag(v2x_partipdem)
+  ) %>%
+  ungroup() %>%
+  filter(year >= 1966, year <= 2024) %>%
+  dplyr::select(country_name, year, v2x_libdem, v2x_partipdem,
+                delta_libdem, delta_partipdem) %>%
+  left_join(analysis_commit, by = c("country_name", "year"))
+
+nb_commit_libdem <- glm.nb(
+  oda_commit_count ~ delta_libdem + v2x_libdem + v2x_corr + v2x_rule + v2xcl_rol +
+                     log(gdp_per_capita) + log(population),
+  data = analysis_commit_robust
+)
+
+nb_commit_partipdem <- glm.nb(
+  oda_commit_count ~ delta_partipdem + v2x_partipdem + v2x_corr + v2x_rule + v2xcl_rol +
+                     log(gdp_per_capita) + log(population),
+  data = analysis_commit_robust
+)
+
+summary(nb_commit_libdem)
+summary(nb_commit_partipdem)
+```
+
+**Results:**
+
+| Model                                       | Delta estimate | p-value |
+|---------------------------------------------|----------------|---------|
+| Electoral democracy (`delta_polyarchy`)     | −0.285         | .276    |
+| Liberal democracy (`delta_libdem`)          | −0.416         | .207    |
+| Participatory democracy (`delta_partipdem`) | −0.348         | .448    |
+
+The null result on backsliding is robust across all three democracy indices in the commitment data. All delta estimates are negative --- consistent with the expectation that backsliding leads to less aid --- but none are statistically distinguishable from zero. This mirrors the pattern in the disbursement analysis and reinforces the conclusion that donors do not respond to year-to-year democratic change regardless of how democracy or aid is measured.
