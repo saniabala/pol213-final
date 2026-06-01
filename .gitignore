@@ -5,6 +5,8 @@
 .DS_Store
 joe/.DS_Store
 joe/data/
+sania/full_oecd_D.csv
+sania/oecd_commitments.csv
 
 # Quarto rendered outputs
 *_files/
