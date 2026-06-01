@@ -185,15 +185,15 @@ summary(nb_backsliding)
 
 **Results:** n = 6,466 country-years (1,084 dropped due to missingness). Theta = 0.992, confirming overdispersion. Residual deviance = 7,525 on 6,458 df. AIC = 91,429.
 
-| Predictor             | Estimate | p-value | Interpretation                                                                                                                                    |
-|---------|---------|---------|---------------------------------------------|
-| `delta_polyarchy`     | −0.310   | .264    | **Not significant.** Direction reversed from prior specification --- backsliding weakly associated with less aid, but indistinguishable from zero |
-| `v2x_polyarchy`       | −0.435   | \<.001  | More democratic countries receive less ODA; consistent with need-based allocation                                                                 |
-| `v2x_corr`            | 1.142    | \<.001  | Higher corruption associated with more ODA                                                                                                        |
-| `v2x_rule`            | 1.616    | \<.001  | Better rule of law associated with more ODA                                                                                                       |
-| `v2xcl_rol`           | 0.382    | \<.001  | Stronger civil liberties associated with more ODA                                                                                                 |
-| `log(gdp_per_capita)` | −0.245   | \<.001  | Richer countries receive less ODA                                                                                                                 |
-| `log(population)`     | 0.545    | \<.001  | Larger countries receive more ODA                                                                                                                 |
+| Predictor | Estimate | p-value | Interpretation |
+|------------------|------------------|------------------|------------------|
+| `delta_polyarchy` | −0.310 | .264 | **Not significant.** Direction reversed from prior specification --- backsliding weakly associated with less aid, but indistinguishable from zero |
+| `v2x_polyarchy` | −0.435 | \<.001 | More democratic countries receive less ODA; consistent with need-based allocation |
+| `v2x_corr` | 1.142 | \<.001 | Higher corruption associated with more ODA |
+| `v2x_rule` | 1.616 | \<.001 | Better rule of law associated with more ODA |
+| `v2xcl_rol` | 0.382 | \<.001 | Stronger civil liberties associated with more ODA |
+| `log(gdp_per_capita)` | −0.245 | \<.001 | Richer countries receive less ODA |
+| `log(population)` | 0.545 | \<.001 | Larger countries receive more ODA |
 
 **Interpretation:** The backsliding hypothesis is not supported in this specification. Aid allocations respond to a country's overall democratic standing, but not to year-to-year democratic change. Notably, with the extended time series the direction of `delta_polyarchy` flips --- backsliding is now weakly associated with *less* aid (negative coefficient), which is the expected direction, but the effect remains statistically indistinguishable from zero. This likely reflects donor inertia --- aid budgets are planned in advance and respond slowly to political shifts.
 
@@ -325,15 +325,15 @@ summary(nb_commit)
 
 **Results:** n = 6,039 country-years (868 dropped due to missingness). Theta = 1.174. Residual deviance = 6,852 on 6,031 df. AIC = 87,640.
 
-| Predictor             | Estimate | p-value | Interpretation                                                                                              |
-|----------|----------|----------|------------------------------------------|
-| `delta_polyarchy`     | −0.285   | .276    | **Not significant.** Backsliding weakly associated with less committed aid, but indistinguishable from zero |
-| `v2x_polyarchy`       | −0.260   | .007    | More democratic countries receive fewer aid commitments                                                     |
-| `v2x_corr`            | 1.260    | \<.001  | Higher corruption associated with more commitments                                                          |
-| `v2x_rule`            | 1.623    | \<.001  | Better rule of law associated with more commitments                                                         |
-| `v2xcl_rol`           | 0.622    | \<.001  | Stronger civil liberties associated with more commitments                                                   |
-| `log(gdp_per_capita)` | −0.267   | \<.001  | Richer countries receive fewer commitments                                                                  |
-| `log(population)`     | 0.560    | \<.001  | Larger countries receive more commitments                                                                   |
+| Predictor | Estimate | p-value | Interpretation |
+|------------------|------------------|------------------|------------------|
+| `delta_polyarchy` | −0.285 | .276 | **Not significant.** Backsliding weakly associated with less committed aid, but indistinguishable from zero |
+| `v2x_polyarchy` | −0.260 | .007 | More democratic countries receive fewer aid commitments |
+| `v2x_corr` | 1.260 | \<.001 | Higher corruption associated with more commitments |
+| `v2x_rule` | 1.623 | \<.001 | Better rule of law associated with more commitments |
+| `v2xcl_rol` | 0.622 | \<.001 | Stronger civil liberties associated with more commitments |
+| `log(gdp_per_capita)` | −0.267 | \<.001 | Richer countries receive fewer commitments |
+| `log(population)` | 0.560 | \<.001 | Larger countries receive more commitments |
 
 **Interpretation:** The null result on backsliding holds using commitment data (est. = −0.285, p = .276). The pattern across controls is nearly identical to the disbursement model, suggesting the finding is not an artifact of the outcome measure. Donors do not appear to respond to year-to-year democratic change whether measured through pledged or transferred aid.
 
@@ -380,26 +380,19 @@ summary(nb_commit_partipdem)
 The null result on backsliding is robust across all three democracy indices in the commitment data. All delta estimates are negative --- consistent with the expectation that backsliding leads to less aid --- but none are statistically distinguishable from zero. This mirrors the pattern in the disbursement analysis and reinforces the conclusion that donors do not respond to year-to-year democratic change regardless of how democracy or aid is measured.
 
 ## Fixed effects
+
 Load data
+
 ```{r}
 analysis = read_csv("analysis_merged.csv")
 analysis_commit = read_csv("analysis_commitments.csv")
 
 ```
 
-Run fixed effects
-```{r}
-library(fixest)
-fe_nb = fenegbin(
-  oda_count ~ delta_polyarchy + v2x_polyarchy + v2x_corr + v2x_rule + v2xcl_rol + 
-    log(gdp_per_capita) + log(population) | country_name,
-  data = analysis
-)
+Disbursements outcome with fixed effects
 
-summary(fe_nb)
-```
+removed v2x_polyarchy
 
-Run fixed effects with removed v2x_polyarchy
 ```{r}
 library(fixest)
 fe_nb = fenegbin(
@@ -410,3 +403,14 @@ fe_nb = fenegbin(
 
 summary(fe_nb)
 ```
+
+Commitments outcome with fixed effects
+
+```{r}
+nb_commit <- fenegbin(
+  oda_commit_count ~ delta_polyarchy + v2x_corr + v2x_rule + v2xcl_rol +
+                     log(gdp_per_capita) + log(population),
+  data = analysis_commit
+)
+```
+
