@@ -120,7 +120,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(WDI)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(countrycode)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># MASS is loaded later, just before the models, to avoid it masking dplyr::select</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(modelsummary)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># MASS is loaded later, just before the models, to avoid it masking dplyr::select</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="data" class="level2">
@@ -335,10 +336,10 @@ Number of Fisher Scoring iterations: 1
 <p><strong>Results:</strong> n = 6,466 country-years (1,084 dropped due to missingness). Theta = 0.992, confirming overdispersion. Residual deviance = 7,525 on 6,458 df. AIC = 91,429.</p>
 <table class="table">
 <colgroup>
-<col style="width: 12%">
-<col style="width: 12%">
-<col style="width: 12%">
-<col style="width: 62%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -662,10 +663,10 @@ Number of Fisher Scoring iterations: 1
 <p><strong>Results:</strong> n = 6,039 country-years (868 dropped due to missingness). Theta = 1.174. Residual deviance = 6,852 on 6,031 df. AIC = 87,640.</p>
 <table class="table">
 <colgroup>
-<col style="width: 13%">
-<col style="width: 13%">
-<col style="width: 13%">
-<col style="width: 58%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -855,6 +856,448 @@ Number of Fisher Scoring iterations: 1
 </table>
 <p>The null result on backsliding is robust across all three democracy indices in the commitment data. All delta estimates are negative — consistent with the expectation that backsliding leads to less aid — but none are statistically distinguishable from zero. This mirrors the pattern in the disbursement analysis and reinforces the conclusion that donors do not respond to year-to-year democratic change regardless of how democracy or aid is measured.</p>
 </section>
+</section>
+<section id="fixed-effects" class="level2">
+<h2 class="anchored" data-anchor-id="fixed-effects">Fixed effects</h2>
+<p>Load data</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>analysis <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="st">"analysis_merged.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 7550 Columns: 10
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (1): country_name
+dbl (9): year, v2x_polyarchy, delta_polyarchy, v2x_corr, v2x_rule, v2xcl_rol...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>analysis_commit <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="st">"analysis_commitments.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 6907 Columns: 10
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (1): country_name
+dbl (9): year, v2x_polyarchy, delta_polyarchy, v2x_corr, v2x_rule, v2xcl_rol...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<p>Disbursements outcome with fixed effects</p>
+<p>removed v2x_polyarchy</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fixest)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'fixest' was built under R version 4.3.3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>fe_nb <span class="ot">=</span> <span class="fu">fenegbin</span>(</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  oda_count <span class="sc">~</span> delta_polyarchy <span class="sc">+</span> v2x_corr <span class="sc">+</span> v2x_rule <span class="sc">+</span> v2xcl_rol <span class="sc">+</span> </span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">log</span>(gdp_per_capita) <span class="sc">+</span> <span class="fu">log</span>(population) <span class="sc">|</span> country_name,</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> analysis</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>NOTE: 1,084 observations removed because of NA values (RHS: 1,084).</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">modelsummary</span>(fe_nb, <span class="at">stars =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Registered S3 method overwritten by 'future':
+  method               from      
+  all.equal.connection parallelly</code></pre>
+</div>
+<div class="cell-output-display">
+
+<!-- preamble start -->
+
+    <script>
+
+      function styleCell_u42pl04fzwhx8b9m2cix(i, j, css_id) {
+          var table = document.getElementById("tinytable_u42pl04fzwhx8b9m2cix");
+          var cell = table.rows[i]?.cells[j];  // Safe navigation to avoid errors
+          if (cell) {
+              console.log(`Styling cell at (${i}, ${j}) with class ${css_id}`);
+              cell.classList.add(css_id);
+          } else {
+              console.warn(`Cell at (${i}, ${j}) not found.`);
+          }
+      }
+      function insertSpanRow(i, colspan, content) {
+        var table = document.getElementById('tinytable_u42pl04fzwhx8b9m2cix');
+        var newRow = table.insertRow(i);
+        var newCell = newRow.insertCell(0);
+        newCell.setAttribute("colspan", colspan);
+        // newCell.innerText = content;
+        // this may be unsafe, but innerText does not interpret <br>
+        newCell.innerHTML = content;
+      }
+      function spanCell_u42pl04fzwhx8b9m2cix(i, j, rowspan, colspan) {
+        var table = document.getElementById("tinytable_u42pl04fzwhx8b9m2cix");
+        const targetRow = table.rows[i];
+        const targetCell = targetRow.cells[j];
+        for (let r = 0; r < rowspan; r++) {
+          // Only start deleting cells to the right for the first row (r == 0)
+          if (r === 0) {
+            // Delete cells to the right of the target cell in the first row
+            for (let c = colspan - 1; c > 0; c--) {
+              if (table.rows[i + r].cells[j + c]) {
+                table.rows[i + r].deleteCell(j + c);
+              }
+            }
+          }
+          // For rows below the first, delete starting from the target column
+          if (r > 0) {
+            for (let c = colspan - 1; c >= 0; c--) {
+              if (table.rows[i + r] && table.rows[i + r].cells[j]) {
+                table.rows[i + r].deleteCell(j);
+              }
+            }
+          }
+        }
+        // Set rowspan and colspan of the target cell
+        targetCell.rowSpan = rowspan;
+        targetCell.colSpan = colspan;
+      }
+      // tinytable span after
+      window.addEventListener('load', function () {
+          var cellsToStyle = [
+            // tinytable style arrays after
+          { positions: [ { i: 22, j: 0 },  ], css_id: 'tinytable_css_l8u61g1np59w50s4y9nr',}, 
+          { positions: [ { i: 12, j: 1 },  ], css_id: 'tinytable_css_jw91in0vrpxp681kv136',}, 
+          { positions: [ { i: 1, j: 1 }, { i: 2, j: 1 }, { i: 3, j: 1 }, { i: 4, j: 1 }, { i: 5, j: 1 }, { i: 6, j: 1 }, { i: 7, j: 1 }, { i: 8, j: 1 }, { i: 9, j: 1 }, { i: 10, j: 1 }, { i: 11, j: 1 }, { i: 16, j: 1 }, { i: 13, j: 1 }, { i: 14, j: 1 }, { i: 15, j: 1 }, { i: 20, j: 1 }, { i: 17, j: 1 }, { i: 18, j: 1 }, { i: 19, j: 1 }, { i: 21, j: 1 },  ], css_id: 'tinytable_css_gtbpkpebjl0mcp2sfncy',}, 
+          { positions: [ { i: 0, j: 0 },  ], css_id: 'tinytable_css_fy2ix7qpohhfs7m755uz',}, 
+          { positions: [ { i: 12, j: 0 },  ], css_id: 'tinytable_css_9lgstv8rb43jihvynfsi',}, 
+          { positions: [ { i: 22, j: 1 },  ], css_id: 'tinytable_css_8clzagoj1re73n12aolg',}, 
+          { positions: [ { i: 1, j: 0 }, { i: 2, j: 0 }, { i: 3, j: 0 }, { i: 4, j: 0 }, { i: 5, j: 0 }, { i: 6, j: 0 }, { i: 7, j: 0 }, { i: 8, j: 0 }, { i: 9, j: 0 }, { i: 10, j: 0 }, { i: 11, j: 0 }, { i: 16, j: 0 }, { i: 13, j: 0 }, { i: 14, j: 0 }, { i: 15, j: 0 }, { i: 20, j: 0 }, { i: 17, j: 0 }, { i: 18, j: 0 }, { i: 19, j: 0 }, { i: 21, j: 0 },  ], css_id: 'tinytable_css_7j195eirrnt8kupf4h2k',}, 
+          { positions: [ { i: 0, j: 1 },  ], css_id: 'tinytable_css_0pxcq5lwjfrwa96c2lcl',}, 
+          ];
+
+          // Loop over the arrays to style the cells
+          cellsToStyle.forEach(function (group) {
+              group.positions.forEach(function (cell) {
+                  styleCell_u42pl04fzwhx8b9m2cix(cell.i, cell.j, group.css_id);
+              });
+          });
+      });
+    </script>
+
+    <style>
+      /* tinytable css entries after */
+      .table td.tinytable_css_l8u61g1np59w50s4y9nr, .table th.tinytable_css_l8u61g1np59w50s4y9nr { text-align: left; border-bottom: solid #d3d8dc 0.1em; }
+      .table td.tinytable_css_jw91in0vrpxp681kv136, .table th.tinytable_css_jw91in0vrpxp681kv136 { text-align: center; border-bottom: solid black 0.05em; }
+      .table td.tinytable_css_gtbpkpebjl0mcp2sfncy, .table th.tinytable_css_gtbpkpebjl0mcp2sfncy { text-align: center; }
+      .table td.tinytable_css_fy2ix7qpohhfs7m755uz, .table th.tinytable_css_fy2ix7qpohhfs7m755uz { text-align: left; border-top: solid #d3d8dc 0.1em; border-bottom: solid #d3d8dc 0.05em; }
+      .table td.tinytable_css_9lgstv8rb43jihvynfsi, .table th.tinytable_css_9lgstv8rb43jihvynfsi { text-align: left; border-bottom: solid black 0.05em; }
+      .table td.tinytable_css_8clzagoj1re73n12aolg, .table th.tinytable_css_8clzagoj1re73n12aolg { text-align: center; border-bottom: solid #d3d8dc 0.1em; }
+      .table td.tinytable_css_7j195eirrnt8kupf4h2k, .table th.tinytable_css_7j195eirrnt8kupf4h2k { text-align: left; }
+      .table td.tinytable_css_0pxcq5lwjfrwa96c2lcl, .table th.tinytable_css_0pxcq5lwjfrwa96c2lcl { text-align: center; border-top: solid #d3d8dc 0.1em; border-bottom: solid #d3d8dc 0.05em; }
+    </style>
+    <div class="container">
+      <table class="table table-borderless" id="tinytable_u42pl04fzwhx8b9m2cix" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+        <thead>
+        
+              <tr>
+                <th scope="col"> </th>
+                <th scope="col">(1)</th>
+              </tr>
+        </thead>
+        <tfoot><tr><td colspan="2">+ p &lt; 0.1, * p &lt; 0.05, ** p &lt; 0.01, *** p &lt; 0.001</td></tr></tfoot>
+        <tbody>
+                <tr>
+                  <td>delta_polyarchy    </td>
+                  <td>-0.235          </td>
+                </tr>
+                <tr>
+                  <td>                   </td>
+                  <td>(0.244)         </td>
+                </tr>
+                <tr>
+                  <td>v2x_corr           </td>
+                  <td>0.575           </td>
+                </tr>
+                <tr>
+                  <td>                   </td>
+                  <td>(0.508)         </td>
+                </tr>
+                <tr>
+                  <td>v2x_rule           </td>
+                  <td>1.018+          </td>
+                </tr>
+                <tr>
+                  <td>                   </td>
+                  <td>(0.611)         </td>
+                </tr>
+                <tr>
+                  <td>v2xcl_rol          </td>
+                  <td>0.193           </td>
+                </tr>
+                <tr>
+                  <td>                   </td>
+                  <td>(0.407)         </td>
+                </tr>
+                <tr>
+                  <td>log(gdp_per_capita)</td>
+                  <td>-0.290**        </td>
+                </tr>
+                <tr>
+                  <td>                   </td>
+                  <td>(0.093)         </td>
+                </tr>
+                <tr>
+                  <td>log(population)    </td>
+                  <td>0.800***        </td>
+                </tr>
+                <tr>
+                  <td>                   </td>
+                  <td>(0.109)         </td>
+                </tr>
+                <tr>
+                  <td>Num.Obs.           </td>
+                  <td>6466            </td>
+                </tr>
+                <tr>
+                  <td>R2                 </td>
+                  <td>0.087           </td>
+                </tr>
+                <tr>
+                  <td>R2 Adj.            </td>
+                  <td>0.084           </td>
+                </tr>
+                <tr>
+                  <td>R2 Within          </td>
+                  <td>0.038           </td>
+                </tr>
+                <tr>
+                  <td>R2 Within Adj.     </td>
+                  <td>0.037           </td>
+                </tr>
+                <tr>
+                  <td>AIC                </td>
+                  <td>87554.3         </td>
+                </tr>
+                <tr>
+                  <td>BIC                </td>
+                  <td>88441.7         </td>
+                </tr>
+                <tr>
+                  <td>RMSE               </td>
+                  <td>1081.83         </td>
+                </tr>
+                <tr>
+                  <td>Std.Errors         </td>
+                  <td>by: country_name</td>
+                </tr>
+                <tr>
+                  <td>FE: country_name   </td>
+                  <td>X               </td>
+                </tr>
+        </tbody>
+      </table>
+    </div>
+<!-- hack to avoid NA insertion in last line -->
+</div>
+</div>
+<p>Commitments outcome with fixed effects</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>nb_commit <span class="ot">&lt;-</span> <span class="fu">fenegbin</span>(</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  oda_commit_count <span class="sc">~</span> delta_polyarchy <span class="sc">+</span> v2x_corr <span class="sc">+</span> v2x_rule <span class="sc">+</span> v2xcl_rol <span class="sc">+</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">log</span>(gdp_per_capita) <span class="sc">+</span> <span class="fu">log</span>(population) <span class="sc">|</span> country_name,</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> analysis_commit</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>NOTE: 868 observations removed because of NA values (RHS: 868).</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">modelsummary</span>(nb_commit, <span class="at">stars =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<!-- preamble start -->
+
+    <script>
+
+      function styleCell_e23m0b226y0fxuqvw5k6(i, j, css_id) {
+          var table = document.getElementById("tinytable_e23m0b226y0fxuqvw5k6");
+          var cell = table.rows[i]?.cells[j];  // Safe navigation to avoid errors
+          if (cell) {
+              console.log(`Styling cell at (${i}, ${j}) with class ${css_id}`);
+              cell.classList.add(css_id);
+          } else {
+              console.warn(`Cell at (${i}, ${j}) not found.`);
+          }
+      }
+      function insertSpanRow(i, colspan, content) {
+        var table = document.getElementById('tinytable_e23m0b226y0fxuqvw5k6');
+        var newRow = table.insertRow(i);
+        var newCell = newRow.insertCell(0);
+        newCell.setAttribute("colspan", colspan);
+        // newCell.innerText = content;
+        // this may be unsafe, but innerText does not interpret <br>
+        newCell.innerHTML = content;
+      }
+      function spanCell_e23m0b226y0fxuqvw5k6(i, j, rowspan, colspan) {
+        var table = document.getElementById("tinytable_e23m0b226y0fxuqvw5k6");
+        const targetRow = table.rows[i];
+        const targetCell = targetRow.cells[j];
+        for (let r = 0; r < rowspan; r++) {
+          // Only start deleting cells to the right for the first row (r == 0)
+          if (r === 0) {
+            // Delete cells to the right of the target cell in the first row
+            for (let c = colspan - 1; c > 0; c--) {
+              if (table.rows[i + r].cells[j + c]) {
+                table.rows[i + r].deleteCell(j + c);
+              }
+            }
+          }
+          // For rows below the first, delete starting from the target column
+          if (r > 0) {
+            for (let c = colspan - 1; c >= 0; c--) {
+              if (table.rows[i + r] && table.rows[i + r].cells[j]) {
+                table.rows[i + r].deleteCell(j);
+              }
+            }
+          }
+        }
+        // Set rowspan and colspan of the target cell
+        targetCell.rowSpan = rowspan;
+        targetCell.colSpan = colspan;
+      }
+      // tinytable span after
+      window.addEventListener('load', function () {
+          var cellsToStyle = [
+            // tinytable style arrays after
+          { positions: [ { i: 12, j: 0 },  ], css_id: 'tinytable_css_xk000fzxogeh830fwxds',}, 
+          { positions: [ { i: 0, j: 0 },  ], css_id: 'tinytable_css_nkwc7z4wysw6xax4tkec',}, 
+          { positions: [ { i: 12, j: 1 },  ], css_id: 'tinytable_css_jco6j2dzchvth96cy1ce',}, 
+          { positions: [ { i: 0, j: 1 },  ], css_id: 'tinytable_css_blzwsevxoa87co94yaf6',}, 
+          { positions: [ { i: 22, j: 0 },  ], css_id: 'tinytable_css_676tdcejc8crf0oyb7ia',}, 
+          { positions: [ { i: 22, j: 1 },  ], css_id: 'tinytable_css_3dq9e1lljg0xyibpodpe',}, 
+          { positions: [ { i: 1, j: 0 }, { i: 2, j: 0 }, { i: 3, j: 0 }, { i: 4, j: 0 }, { i: 5, j: 0 }, { i: 6, j: 0 }, { i: 7, j: 0 }, { i: 8, j: 0 }, { i: 9, j: 0 }, { i: 10, j: 0 }, { i: 11, j: 0 }, { i: 16, j: 0 }, { i: 13, j: 0 }, { i: 14, j: 0 }, { i: 15, j: 0 }, { i: 20, j: 0 }, { i: 17, j: 0 }, { i: 18, j: 0 }, { i: 19, j: 0 }, { i: 21, j: 0 },  ], css_id: 'tinytable_css_1qbb1ezbpcgcbfvyzpcx',}, 
+          { positions: [ { i: 1, j: 1 }, { i: 2, j: 1 }, { i: 3, j: 1 }, { i: 4, j: 1 }, { i: 5, j: 1 }, { i: 6, j: 1 }, { i: 7, j: 1 }, { i: 8, j: 1 }, { i: 9, j: 1 }, { i: 10, j: 1 }, { i: 11, j: 1 }, { i: 16, j: 1 }, { i: 13, j: 1 }, { i: 14, j: 1 }, { i: 15, j: 1 }, { i: 20, j: 1 }, { i: 17, j: 1 }, { i: 18, j: 1 }, { i: 19, j: 1 }, { i: 21, j: 1 },  ], css_id: 'tinytable_css_12sbpdru04q8dboivks9',}, 
+          ];
+
+          // Loop over the arrays to style the cells
+          cellsToStyle.forEach(function (group) {
+              group.positions.forEach(function (cell) {
+                  styleCell_e23m0b226y0fxuqvw5k6(cell.i, cell.j, group.css_id);
+              });
+          });
+      });
+    </script>
+
+    <style>
+      /* tinytable css entries after */
+      .table td.tinytable_css_xk000fzxogeh830fwxds, .table th.tinytable_css_xk000fzxogeh830fwxds { text-align: left; border-bottom: solid black 0.05em; }
+      .table td.tinytable_css_nkwc7z4wysw6xax4tkec, .table th.tinytable_css_nkwc7z4wysw6xax4tkec { text-align: left; border-top: solid #d3d8dc 0.1em; border-bottom: solid #d3d8dc 0.05em; }
+      .table td.tinytable_css_jco6j2dzchvth96cy1ce, .table th.tinytable_css_jco6j2dzchvth96cy1ce { text-align: center; border-bottom: solid black 0.05em; }
+      .table td.tinytable_css_blzwsevxoa87co94yaf6, .table th.tinytable_css_blzwsevxoa87co94yaf6 { text-align: center; border-top: solid #d3d8dc 0.1em; border-bottom: solid #d3d8dc 0.05em; }
+      .table td.tinytable_css_676tdcejc8crf0oyb7ia, .table th.tinytable_css_676tdcejc8crf0oyb7ia { text-align: left; border-bottom: solid #d3d8dc 0.1em; }
+      .table td.tinytable_css_3dq9e1lljg0xyibpodpe, .table th.tinytable_css_3dq9e1lljg0xyibpodpe { text-align: center; border-bottom: solid #d3d8dc 0.1em; }
+      .table td.tinytable_css_1qbb1ezbpcgcbfvyzpcx, .table th.tinytable_css_1qbb1ezbpcgcbfvyzpcx { text-align: left; }
+      .table td.tinytable_css_12sbpdru04q8dboivks9, .table th.tinytable_css_12sbpdru04q8dboivks9 { text-align: center; }
+    </style>
+    <div class="container">
+      <table class="table table-borderless" id="tinytable_e23m0b226y0fxuqvw5k6" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+        <thead>
+        
+              <tr>
+                <th scope="col"> </th>
+                <th scope="col">(1)</th>
+              </tr>
+        </thead>
+        <tfoot><tr><td colspan="2">+ p &lt; 0.1, * p &lt; 0.05, ** p &lt; 0.01, *** p &lt; 0.001</td></tr></tfoot>
+        <tbody>
+                <tr>
+                  <td>delta_polyarchy    </td>
+                  <td>0.093           </td>
+                </tr>
+                <tr>
+                  <td>                   </td>
+                  <td>(0.242)         </td>
+                </tr>
+                <tr>
+                  <td>v2x_corr           </td>
+                  <td>0.652           </td>
+                </tr>
+                <tr>
+                  <td>                   </td>
+                  <td>(0.494)         </td>
+                </tr>
+                <tr>
+                  <td>v2x_rule           </td>
+                  <td>1.174*          </td>
+                </tr>
+                <tr>
+                  <td>                   </td>
+                  <td>(0.589)         </td>
+                </tr>
+                <tr>
+                  <td>v2xcl_rol          </td>
+                  <td>-0.029          </td>
+                </tr>
+                <tr>
+                  <td>                   </td>
+                  <td>(0.369)         </td>
+                </tr>
+                <tr>
+                  <td>log(gdp_per_capita)</td>
+                  <td>-0.154+         </td>
+                </tr>
+                <tr>
+                  <td>                   </td>
+                  <td>(0.088)         </td>
+                </tr>
+                <tr>
+                  <td>log(population)    </td>
+                  <td>0.895***        </td>
+                </tr>
+                <tr>
+                  <td>                   </td>
+                  <td>(0.114)         </td>
+                </tr>
+                <tr>
+                  <td>Num.Obs.           </td>
+                  <td>6039            </td>
+                </tr>
+                <tr>
+                  <td>R2                 </td>
+                  <td>0.096           </td>
+                </tr>
+                <tr>
+                  <td>R2 Adj.            </td>
+                  <td>0.093           </td>
+                </tr>
+                <tr>
+                  <td>R2 Within          </td>
+                  <td>0.045           </td>
+                </tr>
+                <tr>
+                  <td>R2 Within Adj.     </td>
+                  <td>0.045           </td>
+                </tr>
+                <tr>
+                  <td>AIC                </td>
+                  <td>83886.6         </td>
+                </tr>
+                <tr>
+                  <td>BIC                </td>
+                  <td>84765.0         </td>
+                </tr>
+                <tr>
+                  <td>RMSE               </td>
+                  <td>1193.60         </td>
+                </tr>
+                <tr>
+                  <td>Std.Errors         </td>
+                  <td>by: country_name</td>
+                </tr>
+                <tr>
+                  <td>FE: country_name   </td>
+                  <td>X               </td>
+                </tr>
+        </tbody>
+      </table>
+    </div>
+<!-- hack to avoid NA insertion in last line -->
+</div>
+</div>
 </section>
 
 </main>
