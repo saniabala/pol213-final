@@ -378,3 +378,35 @@ summary(nb_commit_partipdem)
 | Participatory democracy (`delta_partipdem`) | −0.348         | .448    |
 
 The null result on backsliding is robust across all three democracy indices in the commitment data. All delta estimates are negative --- consistent with the expectation that backsliding leads to less aid --- but none are statistically distinguishable from zero. This mirrors the pattern in the disbursement analysis and reinforces the conclusion that donors do not respond to year-to-year democratic change regardless of how democracy or aid is measured.
+
+## Fixed effects
+Load data
+```{r}
+analysis = read_csv("analysis_merged.csv")
+analysis_commit = read_csv("analysis_commitments.csv")
+
+```
+
+Run fixed effects
+```{r}
+library(fixest)
+fe_nb = fenegbin(
+  oda_count ~ delta_polyarchy + v2x_polyarchy + v2x_corr + v2x_rule + v2xcl_rol + 
+    log(gdp_per_capita) + log(population) | country_name,
+  data = analysis
+)
+
+summary(fe_nb)
+```
+
+Run fixed effects with removed v2x_polyarchy
+```{r}
+library(fixest)
+fe_nb = fenegbin(
+  oda_count ~ delta_polyarchy + v2x_corr + v2x_rule + v2xcl_rol + 
+    log(gdp_per_capita) + log(population) | country_name,
+  data = analysis
+)
+
+summary(fe_nb)
+```
