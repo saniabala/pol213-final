@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.433">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Sania Bala">
+<meta name="dcterms.date" content="2026-06-01">
+
+<title>Democratic Backsliding and Foreign Aid</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="data_merge_files/libs/clipboard/clipboard.min.js"></script>
+<script src="data_merge_files/libs/quarto-html/quarto.js"></script>
+<script src="data_merge_files/libs/quarto-html/popper.min.js"></script>
+<script src="data_merge_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="data_merge_files/libs/quarto-html/anchor.min.js"></script>
+<link href="data_merge_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="data_merge_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="data_merge_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="data_merge_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="data_merge_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Democratic Backsliding and Foreign Aid</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Sania Bala </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 1, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="setup" class="level2">
+<h2 class="anchored" data-anchor-id="setup">Setup</h2>
+<p>Loading required packages. Any missing packages are installed automatically.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>required_packages <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"tidyverse"</span>, <span class="st">"WDI"</span>, <span class="st">"countrycode"</span>, <span class="st">"MASS"</span>, <span class="st">"here"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>missing_packages <span class="ot">&lt;-</span> required_packages[<span class="sc">!</span>required_packages <span class="sc">%in%</span> <span class="fu">installed.packages</span>()[, <span class="st">"Package"</span>]]</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(missing_packages) <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="fu">install.packages</span>(missing_packages, <span class="at">repos =</span> <span class="st">"https://cloud.r-project.org"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(WDI)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(countrycode)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># MASS is loaded later, just before the models, to avoid it masking dplyr::select</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="data" class="level2">
+<h2 class="anchored" data-anchor-id="data">Data</h2>
+<section id="load-raw-data" class="level3">
+<h3 class="anchored" data-anchor-id="load-raw-data">Load raw data</h3>
+<p>We use two datasets:</p>
+<ul>
+<li><strong>V-Dem</strong> (Varieties of Democracy): country-year measures of democracy, governance, and civil liberties</li>
+<li><strong>OECD DAC2A</strong>: total ODA (Official Development Assistance) disbursements by recipient country and year, 1960–2024</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>vdem <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"VDEM.csv"</span>))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>oecd_raw <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"sania/full_oecd_D.csv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="clean-and-aggregate-oecd-data" class="level3">
+<h3 class="anchored" data-anchor-id="clean-and-aggregate-oecd-data">Clean and aggregate OECD data</h3>
+<p>Country names differ between the two datasets, so we standardize OECD recipient names to match V-Dem before merging. We then aggregate from donor-level rows to total ODA received per recipient country per year.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>oecd_clean <span class="ot">&lt;-</span> oecd_raw <span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Recipient =</span> <span class="fu">recode</span>(Recipient,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Myanmar"</span>                                           <span class="ot">=</span> <span class="st">"Burma/Myanmar"</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Cabo Verde"</span>                                        <span class="ot">=</span> <span class="st">"Cape Verde"</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"China (People's Republic of)"</span>                      <span class="ot">=</span> <span class="st">"China"</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Côte d'Ivoire"</span>                                     <span class="ot">=</span> <span class="st">"Ivory Coast"</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Lao People's Democratic Republic"</span>                  <span class="ot">=</span> <span class="st">"Laos"</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Democratic People's Republic of Korea"</span>             <span class="ot">=</span> <span class="st">"North Korea"</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Palestinian Authority or West Bank and Gaza Strip"</span> <span class="ot">=</span> <span class="st">"Palestine/West Bank"</span>,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Congo"</span>                                             <span class="ot">=</span> <span class="st">"Republic of the Congo"</span>,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Syrian Arab Republic"</span>                              <span class="ot">=</span> <span class="st">"Syria"</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Gambia"</span>                                            <span class="ot">=</span> <span class="st">"The Gambia"</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Viet Nam"</span>                                          <span class="ot">=</span> <span class="st">"Vietnam"</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  ))</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>oecd <span class="ot">&lt;-</span> oecd_clean <span class="sc">%&gt;%</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Recipient, TIME_PERIOD) <span class="sc">%&gt;%</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total_oda_usd_millions =</span> <span class="fu">sum</span>(OBS_VALUE, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">country_name =</span> Recipient, <span class="at">year =</span> TIME_PERIOD)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(oecd, <span class="fu">here</span>(<span class="st">"sania/oecd_clean.csv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="merge-v-dem-and-oecd" class="level3">
+<h3 class="anchored" data-anchor-id="merge-v-dem-and-oecd">Merge V-Dem and OECD</h3>
+<p>We merge on <code>country_name</code> and <code>year</code>, keeping all V-Dem observations (left join). We also compute <code>delta_polyarchy</code> — the year-over-year change in the electoral democracy index — <strong>before</strong> subsetting years, so that the first observation in the analysis window can draw its lag from the prior year.</p>
+<ul>
+<li>Negative <code>delta_polyarchy</code> = democratic backsliding</li>
+<li>Positive <code>delta_polyarchy</code> = democratization</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>merged <span class="ot">&lt;-</span> vdem <span class="sc">%&gt;%</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(oecd, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"country_name"</span>, <span class="st">"year"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(country_name, year) <span class="sc">%&gt;%</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country_name) <span class="sc">%&gt;%</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">delta_polyarchy =</span> v2x_polyarchy <span class="sc">-</span> <span class="fu">lag</span>(v2x_polyarchy)) <span class="sc">%&gt;%</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="subset-to-analysis-variables-19602024" class="level3">
+<h3 class="anchored" data-anchor-id="subset-to-analysis-variables-19602024">Subset to analysis variables (1960–2024)</h3>
+<p>We keep only the variables needed for analysis and filter to the period covered by the OECD data.</p>
+<table class="table">
+<colgroup>
+<col style="width: 26%">
+<col style="width: 73%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>v2x_polyarchy</code></td>
+<td>Electoral democracy level (control)</td>
+</tr>
+<tr class="even">
+<td><code>delta_polyarchy</code></td>
+<td>Year-over-year change in democracy (key predictor)</td>
+</tr>
+<tr class="odd">
+<td><code>v2x_corr</code></td>
+<td>Political corruption index</td>
+</tr>
+<tr class="even">
+<td><code>v2x_rule</code></td>
+<td>Rule of law index</td>
+</tr>
+<tr class="odd">
+<td><code>v2xcl_rol</code></td>
+<td>Civil liberties / equality before the law</td>
+</tr>
+</tbody>
+</table>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>analysis <span class="ot">&lt;-</span> merged <span class="sc">%&gt;%</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">&gt;=</span> <span class="dv">1960</span>, year <span class="sc">&lt;=</span> <span class="dv">2024</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    country_name, year, total_oda_usd_millions,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    v2x_polyarchy, delta_polyarchy,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    v2x_corr, v2x_rule, v2xcl_rol</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="add-gdp-per-capita-and-population" class="level3">
+<h3 class="anchored" data-anchor-id="add-gdp-per-capita-and-population">Add GDP per capita and population</h3>
+<p>GDP per capita and population are not in our V-Dem extract, so we pull them from the World Bank via the <code>WDI</code> package.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>wdi <span class="ot">&lt;-</span> <span class="fu">WDI</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">indicator =</span> <span class="fu">c</span>(<span class="at">gdp_per_capita =</span> <span class="st">"NY.GDP.PCAP.KD"</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">population     =</span> <span class="st">"SP.POP.TOTL"</span>),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">start =</span> <span class="dv">1960</span>, <span class="at">end =</span> <span class="dv">2024</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">extra =</span> <span class="cn">FALSE</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">country_name =</span> <span class="fu">countrycode</span>(iso2c, <span class="at">origin =</span> <span class="st">"iso2c"</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">destination =</span> <span class="st">"country.name"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(country_name)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(country_name, year, gdp_per_capita, population)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>analysis <span class="ot">&lt;-</span> analysis <span class="sc">%&gt;%</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(wdi, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"country_name"</span>, <span class="st">"year"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="prepare-outcome-variable" class="level3">
+<h3 class="anchored" data-anchor-id="prepare-outcome-variable">Prepare outcome variable</h3>
+<p>ODA is reported in USD millions (continuous). We convert it to an integer count by rounding to the nearest million and flooring any negative values (loan repayments) to zero, as required by count models.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>analysis <span class="ot">&lt;-</span> analysis <span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">oda_count =</span> <span class="fu">pmax</span>(<span class="dv">0</span>, <span class="fu">round</span>(total_oda_usd_millions))) <span class="sc">%&gt;%</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>total_oda_usd_millions) <span class="sc">%&gt;%</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(oda_count), <span class="sc">!</span><span class="fu">is.na</span>(v2x_polyarchy))</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(analysis, <span class="fu">here</span>(<span class="st">"sania/analysis_merged.csv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="models" class="level2">
+<h2 class="anchored" data-anchor-id="models">Models</h2>
+<section id="model-strategy" class="level3">
+<h3 class="anchored" data-anchor-id="model-strategy">Model strategy</h3>
+<p>We use negative binomial regression to test whether democratic backsliding predicts foreign aid received. ODA is heavily overdispersed — its variance far exceeds its mean — which rules out Poisson. Population is included as a control (<code>log(population)</code>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="overdispersion-check" class="level3">
+<h3 class="anchored" data-anchor-id="overdispersion-check">Overdispersion check</h3>
+<p>Under Poisson, the variance should equal the mean. If the variance-to-mean ratio is much greater than 1, the data is overdispersed and negative binomial is more appropriate.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean     =</span> <span class="fu">mean</span>(analysis<span class="sc">$</span>oda_count, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">variance =</span> <span class="fu">var</span>(analysis<span class="sc">$</span>oda_count,  <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">ratio    =</span> <span class="fu">var</span>(analysis<span class="sc">$</span>oda_count,  <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">mean</span>(analysis<span class="sc">$</span>oda_count, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+   mean variance ratio
+  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
+1  638. 1717136. 2692.</code></pre>
+</div>
+</div>
+<p>The variance-to-mean ratio is far greater than 1, confirming severe overdispersion. We use negative binomial regression, which adds a dispersion parameter to account for this.</p>
+</section>
+<section id="backsliding-model-democratic-backsliding-and-aid-negative-binomial" class="level3">
+<h3 class="anchored" data-anchor-id="backsliding-model-democratic-backsliding-and-aid-negative-binomial">Backsliding model: Democratic backsliding and aid (Negative Binomial)</h3>
+<p>The key predictor is <code>delta_polyarchy</code> (year-over-year change in <code>v2x_polyarchy</code>). We keep <code>v2x_polyarchy</code> as a level control so that <code>delta_polyarchy</code> captures the effect of change net of overall democratic standing. The expected sign on <code>delta_polyarchy</code> is positive — backsliding (negative delta) should predict less ODA.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>nb_backsliding <span class="ot">&lt;-</span> <span class="fu">glm.nb</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  oda_count <span class="sc">~</span> delta_polyarchy <span class="sc">+</span> v2x_corr <span class="sc">+</span> v2x_rule <span class="sc">+</span> v2xcl_rol <span class="sc">+</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>              <span class="fu">log</span>(gdp_per_capita) <span class="sc">+</span> <span class="fu">log</span>(population),</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> analysis</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(nb_backsliding)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm.nb(formula = oda_count ~ delta_polyarchy + v2x_corr + v2x_rule + 
+    v2xcl_rol + log(gdp_per_capita) + log(population), data = analysis, 
+    init.theta = 0.9892174471, link = log)
+
+Coefficients:
+                     Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)         -1.792934   0.183927  -9.748  &lt; 2e-16 ***
+delta_polyarchy     -0.418205   0.276486  -1.513   0.1304    
+v2x_corr             1.003974   0.125386   8.007 1.17e-15 ***
+v2x_rule             1.416798   0.169785   8.345  &lt; 2e-16 ***
+v2xcl_rol            0.181957   0.102973   1.767   0.0772 .  
+log(gdp_per_capita) -0.250407   0.011870 -21.096  &lt; 2e-16 ***
+log(population)      0.539069   0.008108  66.489  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for Negative Binomial(0.9892) family taken to be 1)
+
+    Null deviance: 12917.8  on 6465  degrees of freedom
+Residual deviance:  7526.9  on 6459  degrees of freedom
+  (1084 observations deleted due to missingness)
+AIC: 91447
+
+Number of Fisher Scoring iterations: 1
+
+              Theta:  0.9892 
+          Std. Err.:  0.0157 
+
+ 2 x log-likelihood:  -91430.5490 </code></pre>
+</div>
+</div>
+<p><strong>Results:</strong> n = 6,466 country-years (1,084 dropped due to missingness). Theta = 0.992, confirming overdispersion. Residual deviance = 7,525 on 6,458 df. AIC = 91,429.</p>
+<table class="table">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 62%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Predictor</th>
+<th>Estimate</th>
+<th>p-value</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>delta_polyarchy</code></td>
+<td>−0.310</td>
+<td>.264</td>
+<td><strong>Not significant.</strong> Direction reversed from prior specification — backsliding weakly associated with less aid, but indistinguishable from zero</td>
+</tr>
+<tr class="even">
+<td><code>v2x_polyarchy</code></td>
+<td>−0.435</td>
+<td>&lt;.001</td>
+<td>More democratic countries receive less ODA; consistent with need-based allocation</td>
+</tr>
+<tr class="odd">
+<td><code>v2x_corr</code></td>
+<td>1.142</td>
+<td>&lt;.001</td>
+<td>Higher corruption associated with more ODA</td>
+</tr>
+<tr class="even">
+<td><code>v2x_rule</code></td>
+<td>1.616</td>
+<td>&lt;.001</td>
+<td>Better rule of law associated with more ODA</td>
+</tr>
+<tr class="odd">
+<td><code>v2xcl_rol</code></td>
+<td>0.382</td>
+<td>&lt;.001</td>
+<td>Stronger civil liberties associated with more ODA</td>
+</tr>
+<tr class="even">
+<td><code>log(gdp_per_capita)</code></td>
+<td>−0.245</td>
+<td>&lt;.001</td>
+<td>Richer countries receive less ODA</td>
+</tr>
+<tr class="odd">
+<td><code>log(population)</code></td>
+<td>0.545</td>
+<td>&lt;.001</td>
+<td>Larger countries receive more ODA</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interpretation:</strong> The backsliding hypothesis is not supported in this specification. Aid allocations respond to a country’s overall democratic standing, but not to year-to-year democratic change. Notably, with the extended time series the direction of <code>delta_polyarchy</code> flips — backsliding is now weakly associated with <em>less</em> aid (negative coefficient), which is the expected direction, but the effect remains statistically indistinguishable from zero. This likely reflects donor inertia — aid budgets are planned in advance and respond slowly to political shifts.</p>
+</section>
+</section>
+<section id="robustness-checks" class="level2">
+<h2 class="anchored" data-anchor-id="robustness-checks">Robustness Checks</h2>
+<section id="check-1-alternative-democracy-measures" class="level3">
+<h3 class="anchored" data-anchor-id="check-1-alternative-democracy-measures">Check 1: Alternative democracy measures</h3>
+<p><code>v2x_polyarchy</code> measures electoral democracy specifically. If the null result is real, it should hold across different conceptualizations of democracy. We test two alternatives:</p>
+<ul>
+<li><code>v2x_libdem</code> — liberal democracy (adds judicial constraints and civil liberties)</li>
+<li><code>v2x_partipdem</code> — participatory democracy (emphasizes civil society and direct participation)</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>analysis_robust <span class="ot">&lt;-</span> merged <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(country_name, year) <span class="sc">%&gt;%</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country_name) <span class="sc">%&gt;%</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">delta_libdem    =</span> v2x_libdem <span class="sc">-</span> <span class="fu">lag</span>(v2x_libdem),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">delta_partipdem =</span> v2x_partipdem <span class="sc">-</span> <span class="fu">lag</span>(v2x_partipdem)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">&gt;=</span> <span class="dv">1960</span>, year <span class="sc">&lt;=</span> <span class="dv">2024</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(country_name, year, v2x_libdem, v2x_partipdem,</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>                delta_libdem, delta_partipdem) <span class="sc">%&gt;%</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(analysis, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"country_name"</span>, <span class="st">"year"</span>))</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>nb_libdem <span class="ot">&lt;-</span> <span class="fu">glm.nb</span>(</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  oda_count <span class="sc">~</span> delta_libdem <span class="sc">+</span> v2x_corr <span class="sc">+</span> v2x_rule <span class="sc">+</span> v2xcl_rol <span class="sc">+</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>              <span class="fu">log</span>(gdp_per_capita) <span class="sc">+</span> <span class="fu">log</span>(population),</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> analysis_robust</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>nb_partipdem <span class="ot">&lt;-</span> <span class="fu">glm.nb</span>(</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  oda_count <span class="sc">~</span> delta_partipdem <span class="sc">+</span> v2x_corr <span class="sc">+</span> v2x_rule <span class="sc">+</span> v2xcl_rol <span class="sc">+</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>              <span class="fu">log</span>(gdp_per_capita) <span class="sc">+</span> <span class="fu">log</span>(population),</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> analysis_robust</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(nb_libdem)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm.nb(formula = oda_count ~ delta_libdem + v2x_corr + v2x_rule + 
+    v2xcl_rol + log(gdp_per_capita) + log(population), data = analysis_robust, 
+    init.theta = 0.98888518, link = log)
+
+Coefficients:
+                     Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)         -1.791554   0.184039  -9.735  &lt; 2e-16 ***
+delta_libdem        -0.534313   0.351810  -1.519   0.1288    
+v2x_corr             1.007894   0.125510   8.030 9.72e-16 ***
+v2x_rule             1.421123   0.169988   8.360  &lt; 2e-16 ***
+v2xcl_rol            0.180877   0.103011   1.756   0.0791 .  
+log(gdp_per_capita) -0.250654   0.011873 -21.111  &lt; 2e-16 ***
+log(population)      0.538895   0.008113  66.426  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for Negative Binomial(0.9889) family taken to be 1)
+
+    Null deviance: 12908.7  on 6461  degrees of freedom
+Residual deviance:  7522.5  on 6455  degrees of freedom
+  (4446 observations deleted due to missingness)
+AIC: 91395
+
+Number of Fisher Scoring iterations: 1
+
+              Theta:  0.9889 
+          Std. Err.:  0.0157 
+
+ 2 x log-likelihood:  -91379.0900 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(nb_partipdem)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm.nb(formula = oda_count ~ delta_partipdem + v2x_corr + v2x_rule + 
+    v2xcl_rol + log(gdp_per_capita) + log(population), data = analysis_robust, 
+    init.theta = 0.9890654944, link = log)
+
+Coefficients:
+                    Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)         -1.80462    0.18401  -9.807  &lt; 2e-16 ***
+delta_partipdem     -0.69706    0.48960  -1.424   0.1545    
+v2x_corr             1.00729    0.12544   8.030 9.72e-16 ***
+v2x_rule             1.41900    0.16985   8.354  &lt; 2e-16 ***
+v2xcl_rol            0.18047    0.10298   1.752   0.0797 .  
+log(gdp_per_capita) -0.24980    0.01188 -21.034  &lt; 2e-16 ***
+log(population)      0.53939    0.00811  66.506  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for Negative Binomial(0.9891) family taken to be 1)
+
+    Null deviance: 12915.5  on 6463  degrees of freedom
+Residual deviance:  7524.7  on 6457  degrees of freedom
+  (4444 observations deleted due to missingness)
+AIC: 91417
+
+Number of Fisher Scoring iterations: 1
+
+              Theta:  0.9891 
+          Std. Err.:  0.0157 
+
+ 2 x log-likelihood:  -91401.4610 </code></pre>
+</div>
+</div>
+<p><strong>Results:</strong> The null result holds across both alternatives.</p>
+<table class="table">
+<colgroup>
+<col style="width: 64%">
+<col style="width: 22%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Delta estimate</th>
+<th>p-value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Electoral democracy (<code>delta_polyarchy</code>)</td>
+<td>0.466</td>
+<td>.537</td>
+</tr>
+<tr class="even">
+<td>Liberal democracy (<code>delta_libdem</code>)</td>
+<td>0.185</td>
+<td>.840</td>
+</tr>
+<tr class="odd">
+<td>Participatory democracy (<code>delta_partipdem</code>)</td>
+<td>1.326</td>
+<td>.266</td>
+</tr>
+</tbody>
+</table>
+<p>The null result on backsliding is robust across all three conceptualizations of democracy. This consistently points to donor inertia — aid allocations respond to where a country sits on the democracy scale, not to how fast it is moving.</p>
+</section>
+<section id="check-2-extended-time-window" class="level3">
+<h3 class="anchored" data-anchor-id="check-2-extended-time-window">Check 2: Extended time window</h3>
+<p>The analysis now uses the full OECD time series (1960–2024), providing a much longer panel with more backsliding episodes and greater statistical power compared to the original 2010–2020 window. Year coverage in practice is limited by the availability of V-Dem scores and World Bank GDP/population data, but the full window is retained and listwise deletion handles missing observations.</p>
+</section>
+</section>
+<section id="replication-commitment-data" class="level2">
+<h2 class="anchored" data-anchor-id="replication-commitment-data">Replication: Commitment Data</h2>
+<p>ODA commitments capture when donors pledge aid, while disbursements capture when it is actually transferred. Commitments may respond more quickly to political changes since they are forward-looking decisions, whereas disbursements reflect prior commitments and are stickier. We replicate the main analysis using OECD DAC3A commitment data (1966–2024) to test whether the null result on backsliding holds.</p>
+<section id="load-and-clean-commitment-data" class="level3">
+<h3 class="anchored" data-anchor-id="load-and-clean-commitment-data">Load and clean commitment data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>oecd_commit_raw <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"sania/oecd_commitments.csv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 8789 Columns: 26
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (18): STRUCTURE, STRUCTURE_ID, STRUCTURE_NAME, ACTION, DONOR, Donor, REC...
+dbl  (5): MEASURE, TIME_PERIOD, OBS_VALUE, BASE_PER, UNIT_MULT
+lgl  (3): Time period, Observation value, Base period
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>oecd_commit <span class="ot">&lt;-</span> oecd_commit_raw <span class="sc">%&gt;%</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Recipient =</span> <span class="fu">recode</span>(Recipient,</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Myanmar"</span>                                           <span class="ot">=</span> <span class="st">"Burma/Myanmar"</span>,</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Cabo Verde"</span>                                        <span class="ot">=</span> <span class="st">"Cape Verde"</span>,</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"China (People's Republic of)"</span>                      <span class="ot">=</span> <span class="st">"China"</span>,</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Côte d'Ivoire"</span>                                     <span class="ot">=</span> <span class="st">"Ivory Coast"</span>,</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Lao People's Democratic Republic"</span>                  <span class="ot">=</span> <span class="st">"Laos"</span>,</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Democratic People's Republic of Korea"</span>             <span class="ot">=</span> <span class="st">"North Korea"</span>,</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Palestinian Authority or West Bank and Gaza Strip"</span> <span class="ot">=</span> <span class="st">"Palestine/West Bank"</span>,</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Congo"</span>                                             <span class="ot">=</span> <span class="st">"Republic of the Congo"</span>,</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Syrian Arab Republic"</span>                              <span class="ot">=</span> <span class="st">"Syria"</span>,</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Gambia"</span>                                            <span class="ot">=</span> <span class="st">"The Gambia"</span>,</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Viet Nam"</span>                                          <span class="ot">=</span> <span class="st">"Vietnam"</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Recipient, TIME_PERIOD) <span class="sc">%&gt;%</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total_oda_commit_usd_millions =</span> <span class="fu">sum</span>(OBS_VALUE, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">country_name =</span> Recipient, <span class="at">year =</span> TIME_PERIOD)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="merge-with-v-dem-and-world-bank-data" class="level3">
+<h3 class="anchored" data-anchor-id="merge-with-v-dem-and-world-bank-data">Merge with V-Dem and World Bank data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>analysis_commit <span class="ot">&lt;-</span> vdem <span class="sc">%&gt;%</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(oecd_commit, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"country_name"</span>, <span class="st">"year"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(country_name, year) <span class="sc">%&gt;%</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country_name) <span class="sc">%&gt;%</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">delta_polyarchy =</span> v2x_polyarchy <span class="sc">-</span> <span class="fu">lag</span>(v2x_polyarchy)) <span class="sc">%&gt;%</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">&gt;=</span> <span class="dv">1966</span>, year <span class="sc">&lt;=</span> <span class="dv">2024</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    country_name, year, total_oda_commit_usd_millions,</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    v2x_polyarchy, delta_polyarchy,</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    v2x_corr, v2x_rule, v2xcl_rol</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(wdi, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"country_name"</span>, <span class="st">"year"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">oda_commit_count =</span> <span class="fu">pmax</span>(<span class="dv">0</span>, <span class="fu">round</span>(total_oda_commit_usd_millions))) <span class="sc">%&gt;%</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>total_oda_commit_usd_millions) <span class="sc">%&gt;%</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(oda_commit_count), <span class="sc">!</span><span class="fu">is.na</span>(v2x_polyarchy))</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(analysis_commit, <span class="fu">here</span>(<span class="st">"sania/analysis_commitments.csv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="overdispersion-check-1" class="level3">
+<h3 class="anchored" data-anchor-id="overdispersion-check-1">Overdispersion check</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean     =</span> <span class="fu">mean</span>(analysis_commit<span class="sc">$</span>oda_commit_count, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">variance =</span> <span class="fu">var</span>(analysis_commit<span class="sc">$</span>oda_commit_count,  <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">ratio    =</span> <span class="fu">var</span>(analysis_commit<span class="sc">$</span>oda_commit_count,  <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">mean</span>(analysis_commit<span class="sc">$</span>oda_commit_count, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+   mean variance ratio
+  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
+1  818. 2415444. 2952.</code></pre>
+</div>
+</div>
+</section>
+<section id="backsliding-model-commitments-negative-binomial" class="level3">
+<h3 class="anchored" data-anchor-id="backsliding-model-commitments-negative-binomial">Backsliding model: Commitments (Negative Binomial)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>nb_commit <span class="ot">&lt;-</span> <span class="fu">glm.nb</span>(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  oda_commit_count <span class="sc">~</span> delta_polyarchy <span class="sc">+</span> v2x_corr <span class="sc">+</span> v2x_rule <span class="sc">+</span> v2xcl_rol <span class="sc">+</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">log</span>(gdp_per_capita) <span class="sc">+</span> <span class="fu">log</span>(population),</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> analysis_commit</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(nb_commit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm.nb(formula = oda_commit_count ~ delta_polyarchy + v2x_corr + 
+    v2x_rule + v2xcl_rol + log(gdp_per_capita) + log(population), 
+    data = analysis_commit, init.theta = 1.172930807, link = log)
+
+Coefficients:
+                     Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)         -2.055029   0.175441 -11.713  &lt; 2e-16 ***
+delta_polyarchy     -0.355311   0.260434  -1.364    0.172    
+v2x_corr             1.185090   0.119731   9.898  &lt; 2e-16 ***
+v2x_rule             1.507696   0.161792   9.319  &lt; 2e-16 ***
+v2xcl_rol            0.506252   0.098638   5.132 2.86e-07 ***
+log(gdp_per_capita) -0.271884   0.011284 -24.094  &lt; 2e-16 ***
+log(population)      0.557016   0.007694  72.400  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for Negative Binomial(1.1729) family taken to be 1)
+
+    Null deviance: 13555.7  on 6038  degrees of freedom
+Residual deviance:  6852.5  on 6032  degrees of freedom
+  (868 observations deleted due to missingness)
+AIC: 87645
+
+Number of Fisher Scoring iterations: 1
+
+              Theta:  1.1729 
+          Std. Err.:  0.0193 
+
+ 2 x log-likelihood:  -87629.2710 </code></pre>
+</div>
+</div>
+<p><strong>Results:</strong> n = 6,039 country-years (868 dropped due to missingness). Theta = 1.174. Residual deviance = 6,852 on 6,031 df. AIC = 87,640.</p>
+<table class="table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 58%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Predictor</th>
+<th>Estimate</th>
+<th>p-value</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>delta_polyarchy</code></td>
+<td>−0.285</td>
+<td>.276</td>
+<td><strong>Not significant.</strong> Backsliding weakly associated with less committed aid, but indistinguishable from zero</td>
+</tr>
+<tr class="even">
+<td><code>v2x_polyarchy</code></td>
+<td>−0.260</td>
+<td>.007</td>
+<td>More democratic countries receive fewer aid commitments</td>
+</tr>
+<tr class="odd">
+<td><code>v2x_corr</code></td>
+<td>1.260</td>
+<td>&lt;.001</td>
+<td>Higher corruption associated with more commitments</td>
+</tr>
+<tr class="even">
+<td><code>v2x_rule</code></td>
+<td>1.623</td>
+<td>&lt;.001</td>
+<td>Better rule of law associated with more commitments</td>
+</tr>
+<tr class="odd">
+<td><code>v2xcl_rol</code></td>
+<td>0.622</td>
+<td>&lt;.001</td>
+<td>Stronger civil liberties associated with more commitments</td>
+</tr>
+<tr class="even">
+<td><code>log(gdp_per_capita)</code></td>
+<td>−0.267</td>
+<td>&lt;.001</td>
+<td>Richer countries receive fewer commitments</td>
+</tr>
+<tr class="odd">
+<td><code>log(population)</code></td>
+<td>0.560</td>
+<td>&lt;.001</td>
+<td>Larger countries receive more commitments</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interpretation:</strong> The null result on backsliding holds using commitment data (est. = −0.285, p = .276). The pattern across controls is nearly identical to the disbursement model, suggesting the finding is not an artifact of the outcome measure. Donors do not appear to respond to year-to-year democratic change whether measured through pledged or transferred aid.</p>
+</section>
+<section id="robustness-alternative-democracy-measures-commitments" class="level3">
+<h3 class="anchored" data-anchor-id="robustness-alternative-democracy-measures-commitments">Robustness: Alternative democracy measures (Commitments)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>analysis_commit_robust <span class="ot">&lt;-</span> merged <span class="sc">%&gt;%</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(country_name, year) <span class="sc">%&gt;%</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country_name) <span class="sc">%&gt;%</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">delta_libdem    =</span> v2x_libdem <span class="sc">-</span> <span class="fu">lag</span>(v2x_libdem),</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">delta_partipdem =</span> v2x_partipdem <span class="sc">-</span> <span class="fu">lag</span>(v2x_partipdem)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">&gt;=</span> <span class="dv">1966</span>, year <span class="sc">&lt;=</span> <span class="dv">2024</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(country_name, year, v2x_libdem, v2x_partipdem,</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>                delta_libdem, delta_partipdem) <span class="sc">%&gt;%</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(analysis_commit, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"country_name"</span>, <span class="st">"year"</span>))</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>nb_commit_libdem <span class="ot">&lt;-</span> <span class="fu">glm.nb</span>(</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>  oda_commit_count <span class="sc">~</span> delta_libdem <span class="sc">+</span> v2x_corr <span class="sc">+</span> v2x_rule <span class="sc">+</span> v2xcl_rol <span class="sc">+</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">log</span>(gdp_per_capita) <span class="sc">+</span> <span class="fu">log</span>(population),</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> analysis_commit_robust</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>nb_commit_partipdem <span class="ot">&lt;-</span> <span class="fu">glm.nb</span>(</span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>  oda_commit_count <span class="sc">~</span> delta_partipdem <span class="sc">+</span> v2x_corr <span class="sc">+</span> v2x_rule <span class="sc">+</span> v2xcl_rol <span class="sc">+</span></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">log</span>(gdp_per_capita) <span class="sc">+</span> <span class="fu">log</span>(population),</span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> analysis_commit_robust</span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(nb_commit_libdem)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm.nb(formula = oda_commit_count ~ delta_libdem + v2x_corr + 
+    v2x_rule + v2xcl_rol + log(gdp_per_capita) + log(population), 
+    data = analysis_commit_robust, init.theta = 1.173004436, 
+    link = log)
+
+Coefficients:
+                     Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)         -2.054704   0.175479 -11.709  &lt; 2e-16 ***
+delta_libdem        -0.531580   0.329293  -1.614    0.106    
+v2x_corr             1.190217   0.119817   9.934  &lt; 2e-16 ***
+v2x_rule             1.515114   0.161973   9.354  &lt; 2e-16 ***
+v2xcl_rol            0.504394   0.098658   5.113 3.18e-07 ***
+log(gdp_per_capita) -0.272149   0.011284 -24.117  &lt; 2e-16 ***
+log(population)      0.556810   0.007694  72.365  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for Negative Binomial(1.173) family taken to be 1)
+
+    Null deviance: 13553.8  on 6037  degrees of freedom
+Residual deviance:  6851.3  on 6031  degrees of freedom
+  (3935 observations deleted due to missingness)
+AIC: 87632
+
+Number of Fisher Scoring iterations: 1
+
+              Theta:  1.1730 
+          Std. Err.:  0.0193 
+
+ 2 x log-likelihood:  -87616.4440 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(nb_commit_partipdem)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm.nb(formula = oda_commit_count ~ delta_partipdem + v2x_corr + 
+    v2x_rule + v2xcl_rol + log(gdp_per_capita) + log(population), 
+    data = analysis_commit_robust, init.theta = 1.172602328, 
+    link = log)
+
+Coefficients:
+                     Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)         -2.063936   0.175530 -11.758  &lt; 2e-16 ***
+delta_partipdem     -0.469022   0.458449  -1.023    0.306    
+v2x_corr             1.183904   0.119781   9.884  &lt; 2e-16 ***
+v2x_rule             1.505216   0.161886   9.298  &lt; 2e-16 ***
+v2xcl_rol            0.505130   0.098657   5.120 3.05e-07 ***
+log(gdp_per_capita) -0.271203   0.011291 -24.018  &lt; 2e-16 ***
+log(population)      0.557389   0.007697  72.418  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for Negative Binomial(1.1726) family taken to be 1)
+
+    Null deviance: 13551.2  on 6036  degrees of freedom
+Residual deviance:  6850.4  on 6030  degrees of freedom
+  (3936 observations deleted due to missingness)
+AIC: 87617
+
+Number of Fisher Scoring iterations: 1
+
+              Theta:  1.1726 
+          Std. Err.:  0.0193 
+
+ 2 x log-likelihood:  -87601.0250 </code></pre>
+</div>
+</div>
+<p><strong>Results:</strong></p>
+<table class="table">
+<colgroup>
+<col style="width: 64%">
+<col style="width: 22%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Delta estimate</th>
+<th>p-value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Electoral democracy (<code>delta_polyarchy</code>)</td>
+<td>−0.285</td>
+<td>.276</td>
+</tr>
+<tr class="even">
+<td>Liberal democracy (<code>delta_libdem</code>)</td>
+<td>−0.416</td>
+<td>.207</td>
+</tr>
+<tr class="odd">
+<td>Participatory democracy (<code>delta_partipdem</code>)</td>
+<td>−0.348</td>
+<td>.448</td>
+</tr>
+</tbody>
+</table>
+<p>The null result on backsliding is robust across all three democracy indices in the commitment data. All delta estimates are negative — consistent with the expectation that backsliding leads to less aid — but none are statistically distinguishable from zero. This mirrors the pattern in the disbursement analysis and reinforces the conclusion that donors do not respond to year-to-year democratic change regardless of how democracy or aid is measured.</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

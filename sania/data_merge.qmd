@@ -185,7 +185,7 @@ summary(nb_backsliding)
 **Results:** n = 6,466 country-years (1,084 dropped due to missingness). Theta = 0.992, confirming overdispersion. Residual deviance = 7,525 on 6,458 df. AIC = 91,429.
 
 | Predictor             | Estimate | p-value | Interpretation                                                                                                                                    |
-|------------------|------------------|------------------|------------------|
+|-----------------------|----------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------|
 | `delta_polyarchy`     | −0.310   | .264    | **Not significant.** Direction reversed from prior specification --- backsliding weakly associated with less aid, but indistinguishable from zero |
 | `v2x_polyarchy`       | −0.435   | \<.001  | More democratic countries receive less ODA; consistent with need-based allocation                                                                 |
 | `v2x_corr`            | 1.142    | \<.001  | Higher corruption associated with more ODA                                                                                                        |
@@ -325,7 +325,7 @@ summary(nb_commit)
 **Results:** n = 6,039 country-years (868 dropped due to missingness). Theta = 1.174. Residual deviance = 6,852 on 6,031 df. AIC = 87,640.
 
 | Predictor             | Estimate | p-value | Interpretation                                                                                              |
-|------------------|------------------|------------------|------------------|
+|-----------------------|----------|---------|-------------------------------------------------------------------------------------------------------------|
 | `delta_polyarchy`     | −0.285   | .276    | **Not significant.** Backsliding weakly associated with less committed aid, but indistinguishable from zero |
 | `v2x_polyarchy`       | −0.260   | .007    | More democratic countries receive fewer aid commitments                                                     |
 | `v2x_corr`            | 1.260    | \<.001  | Higher corruption associated with more commitments                                                          |
