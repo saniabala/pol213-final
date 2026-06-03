@@ -82,6 +82,7 @@ merged <- vdem %>%
   arrange(country_name, year) %>%
   group_by(country_name) %>%
   mutate(delta_polyarchy = v2x_polyarchy - lag(v2x_polyarchy)) %>%
+  mutate(delta5_polyarchy = v2x_polyarchy - lag(v2x_polyarchy, n = 5)) %>% 
   ungroup()
 ```
 
@@ -102,7 +103,7 @@ analysis <- merged %>%
   filter(year >= 1960, year <= 2024) %>%
   dplyr::select(
     country_name, year, total_oda_usd_millions,
-    v2x_polyarchy, delta_polyarchy,
+    v2x_polyarchy, delta_polyarchy, delta5_polyarchy,
     v2x_corr, v2x_rule, v2xcl_rol
   )
 ```
@@ -287,11 +288,12 @@ analysis_commit <- vdem %>%
   arrange(country_name, year) %>%
   group_by(country_name) %>%
   mutate(delta_polyarchy = v2x_polyarchy - lag(v2x_polyarchy)) %>%
+  mutate(delta5_polyarchy = v2x_polyarchy - lag(v2x_polyarchy, n = 5)) %>% 
   ungroup() %>%
   filter(year >= 1966, year <= 2024) %>%
   dplyr::select(
     country_name, year, total_oda_commit_usd_millions,
-    v2x_polyarchy, delta_polyarchy,
+    v2x_polyarchy, delta_polyarchy, delta5_polyarchy,
     v2x_corr, v2x_rule, v2xcl_rol
   ) %>%
   left_join(wdi, by = c("country_name", "year")) %>%
@@ -382,14 +384,6 @@ The null result on backsliding is robust across all three democracy indices in t
 
 ## Fixed effects
 
-Load data
-
-```{r}
-analysis = read_csv("analysis_merged.csv")
-analysis_commit = read_csv("analysis_commitments.csv")
-
-```
-
 Disbursements outcome with fixed effects
 
 removed v2x_polyarchy
@@ -416,3 +410,31 @@ nb_commit <- fenegbin(
 
 modelsummary(nb_commit, stars = TRUE)
 ```
+
+
+## Extended backsliding window
+
+Use delta5_polyarchy instead of delta_polyarchy. Five-year window for backsliding measure (difference in v2x_polyarchy from five years earlier)
+
+Disbursements
+```{r}
+nb_commit <- fenegbin(
+  oda_count ~ delta5_polyarchy + v2x_corr + v2x_rule + v2xcl_rol +
+                     log(gdp_per_capita) + log(population) | country_name,
+  data = analysis
+)
+
+modelsummary(nb_commit, stars = TRUE)
+```
+
+Commitments
+```{r}
+nb_commit <- fenegbin(
+  oda_commit_count ~ delta5_polyarchy + v2x_corr + v2x_rule + v2xcl_rol +
+                     log(gdp_per_capita) + log(population) | country_name,
+  data = analysis_commit
+)
+
+modelsummary(nb_commit, stars = TRUE)
+```
+
